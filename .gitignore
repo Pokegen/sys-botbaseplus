@@ -33,6 +33,7 @@
 *.nsp
 *.nso
 *.elf
+*.npdm
 
 # Builds
 build/
