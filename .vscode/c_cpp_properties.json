@@ -1,15 +1,16 @@
 {
 	"configurations": [
 		{
-			"name": "Windows",
+			"name": "Linux",
 			"includePath": [
-				"${env:DEVKITPRO}/libnx/include/**",
-				"${env:DEVKITPRO}/devkitA64/include/**",
-				"${env:DEVKITPRO}/devkitA64/aarch64-none-elf/include/**",
-				"${env:DEVKITPRO}/devkitARM/include/**",
-				"${env:DEVKITPRO}/devkitA64/lib/gcc/aarch64-none-elf/10.1.0/include/**",
-				"/usr/local/include",
-				"${workspaceFolder}/sys-botbaseplus/source/**"
+				"${env:DEVKITPRO}/libnx/include/",
+				"${env:DEVKITPRO}/devkitA64/include/",
+				"${env:DEVKITPRO}/devkitA64/aarch64-none-elf/include/",
+				"${env:DEVKITPRO}/devkitARM/include/",
+				"${env:DEVKITPRO}/devkitA64/lib/gcc/aarch64-none-elf/10.1.0/include/",
+				"${workspaceFolder}/sys-botbaseplus/source/",
+				"/usr/local/include/",
+				"/usr/include/linux/"
 			],
 			"defines": [
 				"SWITCH",
