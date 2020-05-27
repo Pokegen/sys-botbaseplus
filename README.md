@@ -38,9 +38,9 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **jakibaki** - *Creation of sys-netcheat* - [jakibaki](https://github.com/jakibaki)
-* **olliz0r** - *Creation of sys-botbase* - [olliz0r](https://github.com/olliz0r/sys-botbase)
+* **olliz0r** - *Creation of sys-botbase* - [olliz0r](https://github.com/olliz0r)
 * **yhirose** - *Creation of cpp-httplib* - [yhirose](https://github.com/yhirose)
-* **zaksabeast** - *Creation of sys-http & modification of cpp-httplib to work with Switch* - [zaksabeast](https://github.com/zaksabeast/sys-http)
+* **zaksabeast** - *Creation of sys-http & modification of cpp-httplib to work with Switch* - [zaksabeast](https://github.com/zaksabeast)
 * **DevYukine** - *Initial work* - [DevYukine](https://github.com/DevYukine)
 
 See also the list of [contributors](https://github.com/DevYukine/sys-botbaseplus/contributors) who participated in this project.
