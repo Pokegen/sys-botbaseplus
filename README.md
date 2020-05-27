@@ -1,6 +1,13 @@
 # sys-botbaseplus
 
-This is a C++ port of [olliz0r sys-botbase](https://github.com/olliz0r/sys-botbase) which is also based on [jakibakis sys-netcheat](https://github.com/jakibaki/sys-netcheat)
+This is a modified C++ port of [olliz0r sys-botbase](https://github.com/olliz0r/sys-botbase) which is also based on [jakibakis sys-netcheat](https://github.com/jakibaki/sys-netcheat) 
+
+This sysmodule also adds optional HTTP support, which has a few advantages over raw tcp:
+
+- HTTP is a standardized protocol with well defined uses
+- Simple & Easy implementation on the client side
+- Usable from mostly everywhere (e.g. Browsers, Apps, Server Applications etc.)
+
 
 ## Prerequisites
 
@@ -8,18 +15,16 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 
 ## Getting Started
 
-> This was only tested on Atmosphere 0.10.2, so if you use another version or cfw your experience might vary
+> sys-botbase was only tested on Atmosphere 0.10.2, this module is heavily based on that, so if you use another version or cfw your experience might vary
 
-1. Copy the sys-botbase.nsp file to sdmc://atmosphere/contents/430000000000000B rename it to exefs.nsp
-2. Create a new folder in sdmc://atmosphere/contents/430000000000000B names "flags"
+1. Copy the sys-botbaseplus.nsp file to sdmc://atmosphere/contents/430000000000000C rename it to exefs.nsp
+2. Create a new folder in sdmc://atmosphere/contents/430000000000000C names "flags"
 3. Create a empty file called boot2.flag inside this folder
 4. Restart your switch
 
 ## Contributing
 
 ### Building
-
-> This will only build on Linux due to the Http library [Pistache](http://pistache.io/)
 
 1. Install gcc (needs support for C++20) & make
 2. Install dependencies needed to build [Atmosphere-libs](https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/building.md)
@@ -34,11 +39,13 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 * **jakibaki** - *Creation of sys-netcheat* - [jakibaki](https://github.com/jakibaki)
 * **olliz0r** - *Creation of sys-botbase* - [olliz0r](https://github.com/olliz0r/sys-botbase)
+* **yhirose** - *Creation of cpp-httplib* - [yhirose](https://github.com/yhirose)
+* **zaksabeast** - *Creation of sys-http & modification of cpp-httplib to work with Switch* - [zaksabeast](https://github.com/zaksabeast/sys-http)
 * **DevYukine** - *Initial work* - [DevYukine](https://github.com/DevYukine)
 
 See also the list of [contributors](https://github.com/DevYukine/sys-botbaseplus/contributors) who participated in this project.
 
-Also a big thanks to the people on the ReSwitched Discord Server who helped me setting up everything (especially SciresM & Behemoth)
+Also a big thanks to the people on the ReSwitched Discord Server who helped me setting up everything (especially SciresM & Behemoth) and are always friendly 👍
 
 ## License
 
