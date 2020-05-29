@@ -2,4 +2,4 @@
 
 using namespace BotBasePlus;
 
-std::string Constants::version = "0.0.1";
+const std::string Constants::version = "0.0.1";
