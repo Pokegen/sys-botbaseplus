@@ -1,6 +1,7 @@
 #pragma once
 
 #include <switch.h>
+
 #define MAX_LINE_LENGTH 344 * 32 * 2
 
 namespace BotBasePlus
