@@ -98,7 +98,8 @@
 		"csetjmp": "cpp",
 		"csignal": "cpp",
 		"forward_list": "cpp",
-		"future": "cpp"
+		"future": "cpp",
+		"*.ipp": "cpp"
 	},
 	"cmake.configureOnOpen": false
 }
