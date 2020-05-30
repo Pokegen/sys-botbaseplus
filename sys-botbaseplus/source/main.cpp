@@ -15,7 +15,6 @@
 #include <poll.h>
 
 #define TITLE_ID 0x430000000000000C
-#define HEAP_SIZE 0x000540000
 
 using namespace BotBasePlus;
 
