@@ -19,83 +19,87 @@
 
 using namespace BotBasePlus;
 
-// we aren't an applet
-u32 __nx_applet_type = AppletType_None;
+extern "C" {
+	#define HEAP_SIZE 0x000540000
+	
+	// we aren't an applet
+	u32 __nx_applet_type = AppletType_None;
 
-// setup a fake heap (we don't need the heap anyway)
-char fake_heap[HEAP_SIZE];
+	// setup a fake heap (we don't need the heap anyway)
+	char fake_heap[HEAP_SIZE];
 
-// we override libnx internals to do a minimal init
-void __libnx_initheap(void)
-{
-	extern char *fake_heap_start;
-	extern char *fake_heap_end;
-
-	// setup newlib fake heap
-	fake_heap_start = fake_heap;
-	fake_heap_end = fake_heap + HEAP_SIZE;
-}
-
-void __appInit(void)
-{
-	Result rc;
-	svcSleepThread(20000000000L);
-	rc = smInitialize();
-	if (R_FAILED(rc))
-		fatalThrow(rc);
-	if (hosversionGet() == 0)
+	// we override libnx internals to do a minimal init
+	void __libnx_initheap(void)
 	{
-		rc = setsysInitialize();
-		if (R_SUCCEEDED(rc))
+		extern char *fake_heap_start;
+		extern char *fake_heap_end;
+
+		// setup newlib fake heap
+		fake_heap_start = fake_heap;
+		fake_heap_end = fake_heap + HEAP_SIZE;
+	}
+
+	void __appInit(void)
+	{
+		Result rc;
+		svcSleepThread(20000000000L);
+		rc = smInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		if (hosversionGet() == 0)
 		{
-			SetSysFirmwareVersion fw;
-			rc = setsysGetFirmwareVersion(&fw);
+			rc = setsysInitialize();
 			if (R_SUCCEEDED(rc))
-				hosversionSet(MAKEHOSVERSION(fw.major, fw.minor, fw.micro));
-			setsysExit();
+			{
+				SetSysFirmwareVersion fw;
+				rc = setsysGetFirmwareVersion(&fw);
+				if (R_SUCCEEDED(rc))
+					hosversionSet(MAKEHOSVERSION(fw.major, fw.minor, fw.micro));
+				setsysExit();
+			}
 		}
-	}
-	rc = fsInitialize();
-	if (R_FAILED(rc))
-		fatalThrow(rc);
-	rc = fsdevMountSdmc();
-	if (R_FAILED(rc))
-		fatalThrow(rc);
-	rc = timeInitialize();
-	if (R_FAILED(rc))
-		fatalThrow(rc);
-	rc = pmdmntInitialize();
-	if (R_FAILED(rc))
-	{
-		fatalThrow(rc);
-	}
-	rc = ldrDmntInitialize();
-	if (R_FAILED(rc))
-	{
-		fatalThrow(rc);
-	}
-	rc = pminfoInitialize();
-	if (R_FAILED(rc))
-	{
-		fatalThrow(rc);
-	}
-	rc = socketInitializeDefault();
-	if (R_FAILED(rc))
-		fatalThrow(rc);
+		rc = fsInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		rc = fsdevMountSdmc();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		rc = timeInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		rc = pmdmntInitialize();
+		if (R_FAILED(rc))
+		{
+			fatalThrow(rc);
+		}
+		rc = ldrDmntInitialize();
+		if (R_FAILED(rc))
+		{
+			fatalThrow(rc);
+		}
+		rc = pminfoInitialize();
+		if (R_FAILED(rc))
+		{
+			fatalThrow(rc);
+		}
+		rc = socketInitializeDefault();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
 
-	rc = capsscInitialize();
-	if (R_FAILED(rc))
-		fatalThrow(rc);
-}
+		rc = capsscInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+	}
 
-void __appExit(void)
-{
-	fsdevUnmountAll();
-	fsExit();
-	smExit();
-	audoutExit();
-	timeExit();
-	socketExit();
+	void __appExit(void)
+	{
+		fsdevUnmountAll();
+		fsExit();
+		smExit();
+		audoutExit();
+		timeExit();
+		socketExit();
+	}
 }
 
 int argmain(int argc, char **argv)
