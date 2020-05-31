@@ -128,16 +128,17 @@ void Http::registerRoutes(httplib::Server* svr)
 				}
 			}
 
+			Commands::MetaData meta = Commands::getMetaData();
 			u64 offset = Util::parseStringToInt((char*) (*document)["offset"].GetString());
 
 			if (command == "poke") {
-				Commands::poke(offset, size, val);
+				Commands::poke(meta.heap_base + offset, size, val);
 				
 				delete val;
 			} else {
 				size = (*document)["size"].GetUint64();
 
-				std::string str = Commands::peekReturn(offset, size);
+				std::string str = Commands::peekReturn(meta.heap_base + offset, size);
 
 				std::shared_ptr<Document> d = Json::createDocument();
 
