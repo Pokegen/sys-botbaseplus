@@ -17,7 +17,7 @@ namespace BotBasePlus
 		void registerRoutes(httplib::Server* svr);
 		void setContent(httplib::Response& res, std::shared_ptr<std::string> content, BotBasePlus::Http::Content_Type contentType = BotBasePlus::Http::APPLICATION_JSON);
 		void setContent(httplib::Response& res, std::string content, BotBasePlus::Http::Content_Type contentType = BotBasePlus::Http::APPLICATION_JSON);
-		bool validateAuthentication(const httplib::Request& req);
+		bool validateAuthentication(const httplib::Request& req, httplib::Response& res);
 		void badRequest(httplib::Response& res, std::string message);
 		void unauthorized(httplib::Response& res, std::string message);
 	} // namespace Http

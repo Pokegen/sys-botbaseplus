@@ -1,5 +1,7 @@
 #pragma once
+
 #include <switch.h>
+#include <string>
 
 namespace BotBasePlus
 {
@@ -9,6 +11,8 @@ namespace BotBasePlus
 		extern bool debugResultCodes;
 
 		extern bool echoCommands;
+
+		extern std::string authenticationToken;
 	} // namespace Variables
 
 } // namespace BotBasePlus

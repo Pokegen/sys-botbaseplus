@@ -3,6 +3,7 @@
 #include "constants.hpp"
 #include "commands.hpp"
 #include "util.hpp"
+#include "variables.hpp"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
@@ -13,6 +14,8 @@ void Http::registerRoutes(httplib::Server* svr)
 {
 	svr->Get("/version", [](const httplib::Request& req, httplib::Response& res) 
 	{
+		if (validateAuthentication(req, res) == false) return;
+
 		std::shared_ptr<Document> d = Json::createDocument();
 
 		d->AddMember("version", Constants::version, d->GetAllocator());
@@ -22,6 +25,8 @@ void Http::registerRoutes(httplib::Server* svr)
 
 	svr->Get("/healtz", [](const httplib::Request& req, httplib::Response& res) 
 	{
+		if (validateAuthentication(req, res) == false) return;
+
 		std::shared_ptr<Document> d = Json::createDocument();
 
 		d->AddMember("status", "UP", d->GetAllocator());
@@ -31,6 +36,8 @@ void Http::registerRoutes(httplib::Server* svr)
 
 	svr->Get("/metadata", [](const httplib::Request& req, httplib::Response& res) 
 	{
+		if (validateAuthentication(req, res) == false) return;
+
 		std::shared_ptr<Document> d = Json::createDocument();
 
 		Commands::MetaData meta = Commands::getMetaData();
@@ -43,6 +50,8 @@ void Http::registerRoutes(httplib::Server* svr)
 
 	svr->Post("/", [](const httplib::Request& req, httplib::Response& res)
 	{
+		if (validateAuthentication(req, res) == false) return;
+
 		std::unique_ptr<Document> document = std::make_unique<Document>();
 
 		document->Parse(req.body);
@@ -157,6 +166,35 @@ void Http::registerRoutes(httplib::Server* svr)
 	});
 }
 
+bool Http::validateAuthentication(const httplib::Request& req, httplib::Response& res) 
+{
+	if (req.has_header("Authorization") == false) 
+	{
+		unauthorized(res, "Missing Authorization header");
+		return false;
+	}
+
+	auto val = req.get_header_value("Authorization");
+
+	if (Variables::authenticationToken == "") {
+  		std::ifstream ifs("/atmosphere/contents/430000000000000C/password.txt");
+		if (ifs.good()) {
+			std::string content( (std::istreambuf_iterator<char>(ifs) ), (std::istreambuf_iterator<char>()) );
+			Variables::authenticationToken = content;
+		} else {
+			Variables::authenticationToken = "youshallnotpass";
+		}
+		delete ifs;
+	}
+
+	if (Variables::authenticationToken != val) {
+		unauthorized(res, "Invalid Authentication");
+		return false;
+	}
+
+	return true;
+}
+
 void Http::badRequest(httplib::Response& res, std::string message) 
 {
 	std::shared_ptr<Document> d = Json::createDocument();
@@ -170,7 +208,13 @@ void Http::badRequest(httplib::Response& res, std::string message)
 
 void Http::unauthorized(httplib::Response& res, std::string message) 
 {
+	std::shared_ptr<Document> d = Json::createDocument();
 
+	d->AddMember("message", message, d->GetAllocator());
+
+	res.status = 401;
+
+	setContent(res, Json::toString(d));
 }
 
 void Http::setContent(httplib::Response& res, std::shared_ptr<std::string> content, Http::Content_Type contentType)
