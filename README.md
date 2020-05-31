@@ -15,7 +15,7 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 
 ## Getting Started
 
-> sys-botbase was only tested on Atmosphere 0.10.2, this module is heavily based on that, so if you use another version or cfw your experience might vary
+> This sys-module was only tested on Atmosphere 0.12.0, so if you use another version or cfw your experience might vary
 
 1. Copy the sys-botbaseplus.nsp file to sdmc://atmosphere/contents/430000000000000C rename it to exefs.nsp
 2. Create a new folder in sdmc://atmosphere/contents/430000000000000C names "flags"
