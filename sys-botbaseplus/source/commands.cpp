@@ -170,9 +170,9 @@ void Commands::poke(u64 offset, u64 size, u8 *val)
 	detach();
 }
 
-void Commands::peek(u64 offset, u64 size)
+u8* Commands::peek(u64 offset, u64 size)
 {
-	u8 out[size];
+	u8* out = new u8[size];
 	attach();
 	Result rc = svcReadDebugProcessMemory(&out, Commands::debughandle, offset, size);
 	if (R_FAILED(rc) && Variables::debugResultCodes)
@@ -185,6 +185,8 @@ void Commands::peek(u64 offset, u64 size)
 		printf("%02X", out[i]);
 	}
 	printf("\n");
+
+	return out;
 }
 
 void Commands::click(HidControllerKeys btn)
