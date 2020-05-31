@@ -36,7 +36,7 @@ void Http::registerRoutes(httplib::Server* svr)
 		Commands::MetaData meta = Commands::getMetaData();
 
 		d->AddMember("titleId", Util::str_fmt("%16lX", meta.titleID), d->GetAllocator());
-		d->AddMember("buildId", Util::str_fmt("%02x%02x%02x%02x%02x%02x%02x%02x\n", meta.buildID[0], meta.buildID[1], meta.buildID[2], meta.buildID[3], meta.buildID[4], meta.buildID[5], meta.buildID[6], meta.buildID[7]), d->GetAllocator());
+		d->AddMember("buildId", Util::str_fmt("%02x%02x%02x%02x%02x%02x%02x%02x", meta.buildID[0], meta.buildID[1], meta.buildID[2], meta.buildID[3], meta.buildID[4], meta.buildID[5], meta.buildID[6], meta.buildID[7]), d->GetAllocator());
 
 		setContent(res, Json::toString(d));
 	});
