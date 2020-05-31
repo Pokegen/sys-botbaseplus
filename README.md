@@ -44,6 +44,8 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 
 All request data is expected to be JSON format, all response will be in JSON format. `command` & `button` values are case insensetive.
 
+All Endpoints expect a `Authorization` header with the specified password from the `password.txt`, if not present defaults to `youshallnotpass`.
+
 #### Examples
 
 ```json
