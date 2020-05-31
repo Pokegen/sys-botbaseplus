@@ -8,9 +8,7 @@
 				"${env:DEVKITPRO}/devkitA64/aarch64-none-elf/include/",
 				"${env:DEVKITPRO}/devkitARM/include/",
 				"${env:DEVKITPRO}/devkitA64/lib/gcc/aarch64-none-elf/10.1.0/include/",
-				"${workspaceFolder}/sys-botbaseplus/include/",
-				"${workspaceFolder}/sys-botbaseplus/include/httplib",
-				"${workspaceFolder}/sys-botbaseplus/include/rapidjson",
+				"${workspaceFolder}/sys-botbaseplus/include/**",
 				"/usr/local/include/",
 				"/usr/include/linux/"
 			],
