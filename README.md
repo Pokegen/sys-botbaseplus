@@ -18,9 +18,70 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 > This sys-module was only tested on Atmosphere 0.12.0, so if you use another version or cfw your experience might vary
 
 1. Copy the sys-botbaseplus.nsp file to sdmc://atmosphere/contents/430000000000000C rename it to exefs.nsp
-2. Create a new folder in sdmc://atmosphere/contents/430000000000000C names "flags"
-3. Create a empty file called boot2.flag inside this folder
-4. Restart your switch
+2. Optional, create a password.txt in sdmc://atmosphere/contents/430000000000000C containing a password used for Client <-> Server Communication
+3. Create a new folder in sdmc://atmosphere/contents/430000000000000C names "flags"
+4. Create a empty file called boot2.flag inside this folder
+5. Restart your switch
+
+### Connecting
+
+- sys-botbase compatible TCP server running on port 6000
+- htpp server running on port 9999
+
+### Exposed Http Routes
+
+#### Get
+
+ - `/version` Get sys-botbaseplus version running
+ - `/healtz` Health check to see if http server is running
+ - `/metadata` Metadata about Switch (current titleId & buildId)
+
+#### Post
+
+- `/` Main Command endpoint, expects JSON body see below
+
+### Request & Response format
+
+All request data is expected to be JSON format, all response will be in JSON format. `command` & `button` values are case insensetive.
+
+#### Examples
+
+```json
+{
+	"command": "CLICK",
+	"button": "a"
+}
+```
+
+```json
+{
+	"command": "press",
+	"button": "A"
+}
+```
+
+```json
+{
+	"command": "release",
+	"button": "a"
+}
+```
+
+```json
+{
+	"command": "peek",
+	"offset": "0x4293D8B0",
+	"size": 344
+}
+```
+
+```json
+{
+	"command": "poke",
+	"offset": "0x4293D8B0",
+	"value": "0x41964b8b0000df79b90c04dbce1ef730d83539c2cf6098790106e859eb4f9eba60fa881eae9cd5f25383e8e49873bfa8cb73e17c67005dfb21be932602298b221968dd866bbeab80dda6ecd64fbe51d19e0105a4e40c7fa5eecb9a085f767c6f7c9de5281ff787cfcaac76bda692cf1d113278d36537a55754efb6fd757ce7f19c4b369d0718713c379eb61164e8cf4c969084d8cbabb4a479bad206733a4a0748dcd19a9062ee319e5b5c86ffbb546cb1e63481ad9dd122e6606ffb920da002e87d4fbdcaa2fc4755b1db2a4dbceb2bd94fa36de6d861bb9e082657d7dc5b4181355c58c82bf88803617a9caa3f6b1fba383ede8e5109fbb0d96b0e95172eaddceeb74ea542ced7373d9215e20d442bef8e4887feb3ae61d10eca5d9b84cba7638a08d88fa3cb29902ea1fd2fb469b72cb21d56d0f475b2b60531788a8e97bef9f04b563f1db5e1010ed8db252e73e4ec2b91c2de609979"
+}
+```
 
 ## Contributing
 
