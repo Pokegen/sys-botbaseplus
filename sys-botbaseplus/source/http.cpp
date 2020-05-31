@@ -84,54 +84,63 @@ void Http::registerRoutes(httplib::Server* svr)
 				return;
 			}
 
-			if ((*document)["offset"].IsUint64() == false) {
+			if ((*document)["offset"].IsString() == false) {
 				badRequest(res, "Expected offset property to have type String");
 				return;
 			}
 
-			if (document->HasMember("size") == false) {
-				badRequest(res, "Expected size property to be present");
-				return;
-			}
-
-			if ((*document)["size"].IsUint64() == false) {
-				badRequest(res, "Expected size property to have type String");
-				return;
-			}
-
 			u8* val = NULL;
+			u64 size = 0;
 
 			if (command == "poke") {
-				if (document->HasMember("val") == false) {
-					badRequest(res, "Expected val property to be present");
+				if (document->HasMember("value") == false) {
+					badRequest(res, "Expected value property to be present");
 					return;
 				}
 
-				if ((*document)["val"].IsUint64() == false) {
-					badRequest(res, "Expected val property to have type String");
+				if ((*document)["value"].IsString() == false) {
+					badRequest(res, "Expected value property to have type String");
 					return;
 				}
 
-				val = new uint8_t((*document)["val"].GetUint());
+				val = Util::parseStringToByteBuffer((char*) (*document)["value"].GetString(), &size);
+			} else {
+				if (document->HasMember("size") == false) {
+					badRequest(res, "Expected size property to be present");
+					return;
+				}
+
+				if ((*document)["size"].IsUint64() == false) {
+					badRequest(res, "Expected size property to have type uint64");
+					return;
+				}
 			}
 
-			u64 offset = (*document)["offset"].GetUint64();
-			u64 size = (*document)["size"].GetUint64();
+			u64 offset = Util::parseStringToInt((char*) (*document)["offset"].GetString());
 
 			if (command == "poke") {
 				Commands::poke(offset, size, val);
 				
 				delete val;
 			} else {
+				size = (*document)["size"].GetUint64();
+
 				u8* data = Commands::peek(offset, size);
+
+				std::string temp = "";
+				u64 i;
+				for (i = 0; i < size; i++)
+				{
+					temp = temp + Util::str_fmt("%02X", data[i]);
+				}
+
+				delete data;
 
 				std::shared_ptr<Document> d = Json::createDocument();
 
-				d->AddMember("value", *data, d->GetAllocator());
+				d->AddMember("value", temp, d->GetAllocator());
 
 				setContent(res, Json::toString(d));
-
-				delete data;
 
 				return;
 			}
