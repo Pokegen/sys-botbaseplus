@@ -2,7 +2,7 @@
 
 This is a modified C++ port of [olliz0r sys-botbase](https://github.com/olliz0r/sys-botbase) which is also based on [jakibakis sys-netcheat](https://github.com/jakibaki/sys-netcheat) 
 
-This sysmodule also adds optional HTTP support, which has a few advantages over raw tcp:
+This sysmodule adds optional HTTP support, which has a few advantages over raw tcp:
 
 - HTTP is a standardized protocol with well defined uses
 - Simple & Easy implementation on the client side
@@ -11,7 +11,7 @@ This sysmodule also adds optional HTTP support, which has a few advantages over 
 
 ## Prerequisites
 
-If you wanna run this you need a switch with cfw installed (preferably Atmosphere 0.10.2+)
+If you wanna run this you need a switch with cfw installed (preferably Atmosphere 0.12.0)
 
 ## Getting Started
 
