@@ -394,10 +394,11 @@ int main()
 
 	Http::registerRoutes(svr.get());
 
+	std::thread httpThread([](std::shared_ptr<httplib::Server> svr) { while(true) { svr->listen("0.0.0.0", 9999); } }, svr);
+
 	int newfd;
 	while (appletMainLoop())
 	{
-		std::thread httpThread([](std::shared_ptr<httplib::Server> svr) { svr->listen("0.0.0.0", 9999); }, svr);
 		poll(pfds, fd_count, -1);
 		for (int i = 0; i < fd_count; i++)
 		{
