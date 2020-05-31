@@ -125,20 +125,11 @@ void Http::registerRoutes(httplib::Server* svr)
 			} else {
 				size = (*document)["size"].GetUint64();
 
-				u8* data = Commands::peek(offset, size);
-
-				std::string temp = "";
-				u64 i;
-				for (i = 0; i < size; i++)
-				{
-					temp = temp + Util::str_fmt("%02X", data[i]);
-				}
-
-				delete data;
+				std::string str = Commands::peekReturn(offset, size);
 
 				std::shared_ptr<Document> d = Json::createDocument();
 
-				d->AddMember("value", temp, d->GetAllocator());
+				d->AddMember("value", str, d->GetAllocator());
 
 				setContent(res, Json::toString(d));
 

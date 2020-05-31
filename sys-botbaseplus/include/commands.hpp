@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <switch.h>
 
 namespace BotBasePlus
@@ -31,7 +32,8 @@ namespace BotBasePlus
 		void initController();
 
 		void poke(u64 offset, u64 size, u8 *val);
-		u8* peek(u64 offset, u64 size);
+		void peek(u64 offset, u64 size);
+		std::string peekReturn(u64 offset, u64 size);
 		void click(HidControllerKeys btn);
 		void press(HidControllerKeys btn);
 		void release(HidControllerKeys btn);
