@@ -117,7 +117,8 @@ int argmain(int argc, char **argv)
 
 		u64 offset = Util::parseStringToInt(argv[1]);
 		u64 size = Util::parseStringToInt(argv[2]);
-		Commands::peek(meta.heap_base + offset, size);
+		u8* data = Commands::peek(meta.heap_base + offset, size);
+		delete data;
 	}
 
 	if (!strcmp(argv[0], "peekAbsolute"))
@@ -127,7 +128,8 @@ int argmain(int argc, char **argv)
 
 		u64 offset = Util::parseStringToInt(argv[1]);
 		u64 size = Util::parseStringToInt(argv[2]);
-		Commands::peek(offset, size);
+		u8* data = Commands::peek(offset, size);
+		delete data;
 	}
 
 	if (!strcmp(argv[0], "peekMain"))
@@ -139,7 +141,8 @@ int argmain(int argc, char **argv)
 
 		u64 offset = Util::parseStringToInt(argv[1]);
 		u64 size = Util::parseStringToInt(argv[2]);
-		Commands::peek(meta.main_nso_base + offset, size);
+		u8* data = Commands::peek(meta.main_nso_base + offset, size);
+		delete data;
 	}
 
 	//poke <address in hex or dec> <amount of bytes in hex or dec> <data in hex or dec>
