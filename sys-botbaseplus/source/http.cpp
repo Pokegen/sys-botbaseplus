@@ -184,7 +184,6 @@ bool Http::validateAuthentication(const httplib::Request& req, httplib::Response
 		} else {
 			Variables::authenticationToken = "youshallnotpass";
 		}
-		delete ifs;
 	}
 
 	if (Variables::authenticationToken != val) {
