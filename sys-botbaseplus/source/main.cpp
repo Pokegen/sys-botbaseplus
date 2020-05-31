@@ -14,6 +14,7 @@
 #include "variables.hpp"
 #include <poll.h>
 #include "http.hpp"
+#include <thread>
 
 #define TITLE_ID 0x430000000000000C
 
@@ -389,14 +390,14 @@ int main()
 	pfds[0].events = POLLIN;
 	fd_count = 1;
 
-	std::unique_ptr<httplib::Server> svr = std::make_unique<httplib::Server>();
+	std::shared_ptr<httplib::Server> svr = std::make_shared<httplib::Server>();
 
 	Http::registerRoutes(svr.get());
 
 	int newfd;
 	while (appletMainLoop())
 	{
-		svr->listen("0.0.0.0", 9999);
+		std::thread httpThread([](std::shared_ptr<httplib::Server> svr) { svr->listen("0.0.0.0", 9999); }, svr);
 		poll(pfds, fd_count, -1);
 		for (int i = 0; i < fd_count; i++)
 		{
