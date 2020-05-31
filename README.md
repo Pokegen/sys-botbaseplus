@@ -6,7 +6,7 @@ This sysmodule adds optional HTTP support, which has a few advantages over raw t
 
 - HTTP is a standardized protocol with well defined uses
 - Simple & Easy implementation on the client side
-- Usable from mostly everywhere (e.g. Browsers, Apps, Server Applications etc.)
+- Usable from almost everywhere (e.g. Browsers, Apps, Server Applications etc.)
 
 
 ## Prerequisites
@@ -18,7 +18,7 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 > This sys-module was only tested on Atmosphere 0.12.0, so if you use another version or cfw your experience might vary
 
 1. Copy the sys-botbaseplus.nsp file to sdmc://atmosphere/contents/430000000000000C rename it to exefs.nsp
-2. Optional, create a password.txt in sdmc://atmosphere/contents/430000000000000C containing a password used for Communication
+2. Optional, create a password.txt in sdmc://atmosphere/contents/430000000000000C containing a password used for http communication
 3. Create a new folder in sdmc://atmosphere/contents/430000000000000C names "flags"
 4. Create a empty file called boot2.flag inside this folder
 5. Restart your switch
@@ -26,14 +26,16 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 ### Connecting
 
 - sys-botbase compatible TCP server running on port 6000
-- htpp server running on port 9999
+- http server running on port 9999
 
-### Exposed Http Routes
+### Http Routes
+
+All Endpoints expect a `Authorization` header with the specified password from the `password.txt`, if not present defaults to `youshallnotpass`.
 
 #### Get
 
- - `/version` Get sys-botbaseplus version running
- - `/healtz` Health check to see if http server is running
+ - `/version` Get current version of sys-botbaseplus
+ - `/healtz` Health check to see if the http server is running
  - `/metadata` Metadata about Switch (current titleId & buildId)
 
 #### Post
@@ -42,9 +44,9 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 
 ### Request & Response format
 
-All request data is expected to be JSON format, all response will be in JSON format. `command` & `button` values are case insensetive.
+All request data is expected to be JSON format, all response will be in JSON format.
 
-All Endpoints expect a `Authorization` header with the specified password from the `password.txt`, if not present defaults to `youshallnotpass`.
+`command` & `button` values are case insensetive.
 
 #### Examples
 
