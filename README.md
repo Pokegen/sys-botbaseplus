@@ -45,7 +45,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 See also the list of [contributors](https://github.com/DevYukine/sys-botbaseplus/contributors) who participated in this project.
 
-Also a big thanks to the people on the ReSwitched Discord Server who helped me (especially SciresM & Behemoth) and olliz0r 😊
+Also a big thanks to the people on the ReSwitched Discord Server (especially SciresM & Behemoth) and olliz0r who helped me during development 😊
 
 ## License
 
