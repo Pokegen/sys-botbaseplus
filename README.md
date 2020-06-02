@@ -35,7 +35,7 @@ All Endpoints expect a `Authorization` header with the specified password from t
 #### Get
 
  - `/version` Get current version of sys-botbaseplus
- - `/healtz` Health check to see if the http server is running
+ - `/healthz` Health check to see if the http server is running
  - `/metadata` Metadata about Switch (current titleId & buildId)
 
 #### Post

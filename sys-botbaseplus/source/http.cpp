@@ -23,7 +23,7 @@ void Http::registerRoutes(httplib::Server* svr)
 		setContent(res, Json::toString(d));
 	});
 
-	svr->Get("/healtz", [](const httplib::Request& req, httplib::Response& res) 
+	svr->Get("/healthz", [](const httplib::Request& req, httplib::Response& res) 
 	{
 		if (validateAuthentication(req, res) == false) return;
 
