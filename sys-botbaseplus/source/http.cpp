@@ -177,7 +177,7 @@ bool Http::validateAuthentication(const httplib::Request& req, httplib::Response
 	auto val = req.get_header_value("Authorization");
 
 	if (Variables::authenticationToken == "") {
-  		std::ifstream ifs("/atmosphere/contents/430000000000000C/password.txt");
+  		std::ifstream ifs("/config/sys-botbaseplus/password.txt");
 		if (ifs.good()) {
 			std::string content( (std::istreambuf_iterator<char>(ifs) ), (std::istreambuf_iterator<char>()) );
 			Variables::authenticationToken = content;

@@ -15,10 +15,17 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 
 ## Getting Started
 
-> This sys-module was only tested on Atmosphere 0.12.0, so if you use another version or cfw your experience might vary
+> This sys-module was only tested on Atmosphere 0.13.0, so if you use another version or cfw your experience might vary
 
+#### Using the .zip
+
+1. Extract the content of the zip file
+2. Copy content to sdmc://
+3. Optional, create a password.txt in sdmc://config/sys-botbaseplus containing a password used for http communication
+
+#### Using the .nsp
 1. Copy the sys-botbaseplus.nsp file to sdmc://atmosphere/contents/430000000000000C rename it to exefs.nsp
-2. Optional, create a password.txt in sdmc://atmosphere/contents/430000000000000C containing a password used for http communication
+2. Optional, create a password.txt in sdmc://config/sys-botbaseplus containing a password used for http communication
 3. Create a new folder in sdmc://atmosphere/contents/430000000000000C names "flags"
 4. Create a empty file called boot2.flag inside this folder
 5. Restart your switch
