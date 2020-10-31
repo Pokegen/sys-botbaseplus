@@ -20,9 +20,10 @@
 
 using namespace BotBasePlus;
 
-extern "C" {
-	#define HEAP_SIZE 0x000540000
-	
+extern "C"
+{
+#define HEAP_SIZE 0x000540000
+
 	// we aren't an applet
 	u32 __nx_applet_type = AppletType_None;
 
@@ -240,10 +241,10 @@ int argmain(int argc, char **argv)
 		if (dxVal < JOYSTICK_MIN)
 			dxVal = JOYSTICK_MIN; //-0x8000
 		int dyVal = strtol(argv[3], NULL, 0);
-		if (dxVal > JOYSTICK_MAX)
-			dxVal = JOYSTICK_MAX;
-		if (dxVal < JOYSTICK_MIN)
-			dxVal = JOYSTICK_MIN;
+		if (dyVal > JOYSTICK_MAX)
+			dyVal = JOYSTICK_MAX;
+		if (dyVal < JOYSTICK_MIN)
+			dyVal = JOYSTICK_MIN;
 
 		Commands::setStickState(side, dxVal, dyVal);
 	}
@@ -295,7 +296,7 @@ int argmain(int argc, char **argv)
 	if (!strcmp(argv[0], "getTitleID"))
 	{
 		Commands::MetaData meta = Commands::getMetaData();
-		printf("%16lX\n", meta.titleID);
+		printf("%016lX\n", meta.titleID);
 	}
 
 	if (!strcmp(argv[0], "getSystemLanguage"))
@@ -312,7 +313,7 @@ int argmain(int argc, char **argv)
 	if (!strcmp(argv[0], "getMainNsoBase"))
 	{
 		Commands::MetaData meta = Commands::getMetaData();
-		printf("%16lX\n", meta.main_nso_base);
+		printf("%016lX\n", meta.main_nso_base);
 	}
 
 	if (!strcmp(argv[0], "getBuildID"))
@@ -324,7 +325,7 @@ int argmain(int argc, char **argv)
 	if (!strcmp(argv[0], "getHeapBase"))
 	{
 		Commands::MetaData meta = Commands::getMetaData();
-		printf("%16lX\n", meta.heap_base);
+		printf("%016lX\n", meta.heap_base);
 	}
 
 	if (!strcmp(argv[0], "pixelPeek"))
@@ -347,6 +348,11 @@ int argmain(int argc, char **argv)
 		printf("\n");
 
 		free(buf);
+	}
+
+	if (!strcmp(argv[0], "getVersion"))
+	{
+		printf("1.6\n");
 	}
 
 	return 0;

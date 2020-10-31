@@ -172,35 +172,37 @@ void Commands::poke(u64 offset, u64 size, u8 *val)
 
 void Commands::peek(u64 offset, u64 size)
 {
-	u8 out[size];
-    attach();
-    Result rc = svcReadDebugProcessMemory(&out, debughandle, offset, size);
-    if (R_FAILED(rc) && Variables::debugResultCodes)
-        printf("svcReadDebugProcessMemory: %d\n", rc);
-    detach();
+	u8 *out = malloc(sizeof(u8) * size);
+	attach();
+	Result rc = svcReadDebugProcessMemory(out, debughandle, offset, size);
+	if (R_FAILED(rc) && Variables::debugResultCodes)
+		printf("svcReadDebugProcessMemory: %d\n", rc);
+	detach();
 
-    u64 i;
-    for (i = 0; i < size; i++)
-    {
-        printf("%02X", out[i]);
-    }
-    printf("\n");
+	u64 i;
+	for (i = 0; i < size; i++)
+	{
+		printf("%02X", out[i]);
+	}
+	printf("\n");
+	free(out);
 }
 
-std::string Commands::peekReturn(u64 offset, u64 size) {
+std::string Commands::peekReturn(u64 offset, u64 size)
+{
 	u8 out[size];
-    attach();
-    Result rc = svcReadDebugProcessMemory(&out, debughandle, offset, size);
-    if (R_FAILED(rc) && Variables::debugResultCodes)
-        printf("svcReadDebugProcessMemory: %d\n", rc);
-    detach();
+	attach();
+	Result rc = svcReadDebugProcessMemory(&out, debughandle, offset, size);
+	if (R_FAILED(rc) && Variables::debugResultCodes)
+		printf("svcReadDebugProcessMemory: %d\n", rc);
+	detach();
 
 	std::string res = "";
-    u64 i;
-    for (i = 0; i < size; i++)
-    {
+	u64 i;
+	for (i = 0; i < size; i++)
+	{
 		res = res + Util::str_fmt("%02X", out[i]);
-    }
+	}
 
 	return res;
 }
