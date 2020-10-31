@@ -172,7 +172,7 @@ void Commands::poke(u64 offset, u64 size, u8 *val)
 
 void Commands::peek(u64 offset, u64 size)
 {
-	u8 *out = malloc(sizeof(u8) * size);
+	u8 *out = (u8 *)malloc(sizeof(u8) * size);
 	attach();
 	Result rc = svcReadDebugProcessMemory(out, debughandle, offset, size);
 	if (R_FAILED(rc) && Variables::debugResultCodes)
