@@ -11,7 +11,7 @@ This sysmodule adds optional HTTP support, which has a few advantages over raw t
 
 ## Prerequisites
 
-If you wanna run this you need a switch with cfw installed (preferably Atmosphere 0.14.4)
+If you wanna run this you need a switch with cfw installed (preferably Atmosphere)
 
 ## Getting Started
 
