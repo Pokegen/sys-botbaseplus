@@ -15,7 +15,7 @@ namespace BotBasePlus
 		int setupServerSocket();
 		u64 parseStringToInt(char *arg);
 		u8 *parseStringToByteBuffer(char *arg, u64 *size);
-		HidControllerKeys parseStringToButton(char *arg);
+		HidNpadButton parseStringToButton(char *arg);
 		Result capsscCaptureForDebug(void *buffer, size_t buffer_size, u64 *size); //big thanks to Behemoth from the Reswitched Discord!
 
 		std::string str_fmt(const std::string fmt_str, ...);

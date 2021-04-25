@@ -193,7 +193,7 @@ int argmain(int argc, char **argv)
 	{
 		if (argc != 2)
 			return 0;
-		HidControllerKeys key = Util::parseStringToButton(argv[1]);
+		HidNpadButton key = Util::parseStringToButton(argv[1]);
 		Commands::click(key);
 	}
 
@@ -202,7 +202,7 @@ int argmain(int argc, char **argv)
 	{
 		if (argc != 2)
 			return 0;
-		HidControllerKeys key = Util::parseStringToButton(argv[1]);
+		HidNpadButton key = Util::parseStringToButton(argv[1]);
 		Commands::press(key);
 	}
 
@@ -211,7 +211,7 @@ int argmain(int argc, char **argv)
 	{
 		if (argc != 2)
 			return 0;
-		HidControllerKeys key = Util::parseStringToButton(argv[1]);
+		HidNpadButton key = Util::parseStringToButton(argv[1]);
 		Commands::release(key);
 	}
 

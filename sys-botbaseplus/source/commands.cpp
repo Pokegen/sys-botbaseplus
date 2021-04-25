@@ -1,4 +1,5 @@
 #include <switch.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,16 +10,20 @@
 
 using namespace BotBasePlus;
 
-Mutex actionLock;
-
 //Controller:
 bool Commands::bControllerIsInitialised = false;
-u64 Commands::controllerHandle = 0;
+HiddbgHdlsHandle Commands::controllerHandle = {0};
 HiddbgHdlsDeviceInfo Commands::controllerDevice = {0};
 HiddbgHdlsState Commands::controllerState = {0};
 
+//Keyboard:
+HiddbgKeyboardAutoPilotState dummyKeyboardState = {0};
+
 Handle Commands::debughandle = 0;
 u64 Commands::buttonClickSleepTime = 50;
+u64 keyPressSleepTime = 25;
+u64 pollRate = 17; // polling is linked to screen refresh rate (system UI) or game framerate. Most cases this is 1/60 or 1/30
+u32 fingerDiameter = 50;
 
 void Commands::attach()
 {
@@ -139,7 +144,7 @@ void Commands::initController()
 		printf("hiddbgInitialize: %d\n", rc);
 	// Set the controller type to Pro-Controller, and set the npadInterfaceType.
 	Commands::controllerDevice.deviceType = HidDeviceType_FullKey3;
-	Commands::controllerDevice.npadInterfaceType = NpadInterfaceType_Bluetooth;
+	Commands::controllerDevice.npadInterfaceType = HidNpadInterfaceType_Bluetooth;
 	// Set the controller colors. The grip colors are for Pro-Controller on [9.0.0+].
 	Commands::controllerDevice.singleColorBody = RGBA8_MAXALPHA(255, 255, 255);
 	Commands::controllerDevice.singleColorButtons = RGBA8_MAXALPHA(0, 0, 0);
@@ -147,36 +152,41 @@ void Commands::initController()
 	Commands::controllerDevice.colorRightGrip = RGBA8_MAXALPHA(0, 40, 20);
 
 	// Setup example controller state.
-	Commands::controllerState.batteryCharge = 4; // Set battery charge to full.
-	Commands::controllerState.joysticks[JOYSTICK_LEFT].dx = 0x0;
-	Commands::controllerState.joysticks[JOYSTICK_LEFT].dy = -0x0;
-	Commands::controllerState.joysticks[JOYSTICK_RIGHT].dx = 0x0;
-	Commands::controllerState.joysticks[JOYSTICK_RIGHT].dy = -0x0;
+	Commands::controllerState.battery_level = 4; // Set battery charge to full.
+	Commands::controllerState.analog_stick_l.x = 0x0;
+	Commands::controllerState.analog_stick_l.y = -0x0;
+	Commands::controllerState.analog_stick_r.x = 0x0;
+	Commands::controllerState.analog_stick_r.y = -0x0;
 	rc = hiddbgAttachHdlsWorkBuffer();
 	if (R_FAILED(rc) && Variables::debugResultCodes)
 		printf("hiddbgAttachHdlsWorkBuffer: %d\n", rc);
 	rc = hiddbgAttachHdlsVirtualDevice(&Commands::controllerHandle, &Commands::controllerDevice);
 	if (R_FAILED(rc) && Variables::debugResultCodes)
 		printf("hiddbgAttachHdlsVirtualDevice: %d\n", rc);
+	//init a dummy keyboard state for assignment between keypresses
+	dummyKeyboardState.keys[3] = 0x800000000000000UL; // Hackfix found by Red: an unused key press (KBD_MEDIA_CALC) is required to allow sequential same-key presses. bitfield[3]
 	Commands::bControllerIsInitialised = true;
 }
 
 void Commands::poke(u64 offset, u64 size, u8 *val)
 {
 	attach();
+	Commands::writeMem(offset, size, val);
+	detach();
+}
+
+void Commands::writeMem(u64 offset, u64 size, u8 *val)
+{
 	Result rc = svcWriteDebugProcessMemory(Commands::debughandle, val, offset, size);
 	if (R_FAILED(rc) && Variables::debugResultCodes)
 		printf("svcWriteDebugProcessMemory: %d\n", rc);
-	detach();
 }
 
 void Commands::peek(u64 offset, u64 size)
 {
 	u8 *out = (u8 *)malloc(sizeof(u8) * size);
 	attach();
-	Result rc = svcReadDebugProcessMemory(out, debughandle, offset, size);
-	if (R_FAILED(rc) && Variables::debugResultCodes)
-		printf("svcReadDebugProcessMemory: %d\n", rc);
+	Commands::readMem(out, offset, size);
 	detach();
 
 	u64 i;
@@ -186,6 +196,13 @@ void Commands::peek(u64 offset, u64 size)
 	}
 	printf("\n");
 	free(out);
+}
+
+void Commands::readMem(u8 *out, u64 offset, u64 size)
+{
+	Result rc = svcReadDebugProcessMemory(out, Commands::debughandle, offset, size);
+	if (R_FAILED(rc) && Variables::debugResultCodes)
+		printf("svcReadDebugProcessMemory: %d\n", rc);
 }
 
 std::string Commands::peekReturn(u64 offset, u64 size)
@@ -207,31 +224,43 @@ std::string Commands::peekReturn(u64 offset, u64 size)
 	return res;
 }
 
-void Commands::click(HidControllerKeys btn)
+void Commands::click(HidNpadButton btn)
 {
 	initController();
 	press(btn);
 	svcSleepThread(Commands::buttonClickSleepTime * 1e+6L);
 	release(btn);
 }
-void Commands::press(HidControllerKeys btn)
+void Commands::press(HidNpadButton btn)
 {
 	initController();
 	Commands::controllerState.buttons |= btn;
-	hiddbgSetHdlsState(Commands::controllerHandle, &Commands::controllerState);
+	Result rc = hiddbgSetHdlsState(Commands::controllerHandle, &Commands::controllerState);
+	if (R_FAILED(rc) && Variables::debugResultCodes)
+		printf("hiddbgSetHdlsState: %d\n", rc);
 }
 
-void Commands::release(HidControllerKeys btn)
+void Commands::release(HidNpadButton btn)
 {
 	initController();
 	Commands::controllerState.buttons &= ~btn;
-	hiddbgSetHdlsState(Commands::controllerHandle, &Commands::controllerState);
+	Result rc = hiddbgSetHdlsState(Commands::controllerHandle, &Commands::controllerState);
+	if (R_FAILED(rc) && Variables::debugResultCodes)
+		printf("hiddbgSetHdlsState: %d\n", rc);
 }
 
 void Commands::setStickState(int side, int dxVal, int dyVal)
 {
 	initController();
-	Commands::controllerState.joysticks[side].dx = dxVal;
-	Commands::controllerState.joysticks[side].dy = dyVal;
+	if (side == JOYSTICK_LEFT)
+	{
+		controllerState.analog_stick_l.x = dxVal;
+		controllerState.analog_stick_l.y = dyVal;
+	}
+	else
+	{
+		controllerState.analog_stick_r.x = dxVal;
+		controllerState.analog_stick_r.y = dyVal;
+	}
 	hiddbgSetHdlsState(Commands::controllerHandle, &Commands::controllerState);
 }
