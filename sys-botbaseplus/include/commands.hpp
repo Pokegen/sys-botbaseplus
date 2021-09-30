@@ -49,6 +49,7 @@ namespace BotBasePlus
 		void getBuildID(MetaData *meta, u64 pid);
 		MetaData getMetaData(void);
 		void initController();
+		void detachController();
 
 		void poke(u64 offset, u64 size, u8 *val);
 		void peek(u64 offset, u64 size);

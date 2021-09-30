@@ -91,6 +91,12 @@ extern "C"
 		rc = capsscInitialize();
 		if (R_FAILED(rc))
 			fatalThrow(rc);
+		rc = viInitialize(ViServiceType_Default);
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		rc = psmInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
 	}
 
 	void __appExit(void)
@@ -101,6 +107,8 @@ extern "C"
 		audoutExit();
 		timeExit();
 		socketExit();
+		viExit();
+		psmExit();
 	}
 }
 
@@ -252,14 +260,7 @@ int argmain(int argc, char **argv)
 	//detachController
 	if (!strcmp(argv[0], "detachController"))
 	{
-		Result rc = hiddbgDetachHdlsVirtualDevice(Commands::controllerHandle);
-		if (R_FAILED(rc) && Variables::debugResultCodes)
-			printf("hiddbgDetachHdlsVirtualDevice: %d\n", rc);
-		rc = hiddbgReleaseHdlsWorkBuffer();
-		if (R_FAILED(rc) && Variables::debugResultCodes)
-			printf("hiddbgReleaseHdlsWorkBuffer: %d\n", rc);
-		hiddbgExit();
-		Commands::bControllerIsInitialised = false;
+		Commands::detachController();
 	}
 
 	//configure <mainLoopSleepTime or buttonClickSleepTime> <time in ms>
@@ -400,7 +401,14 @@ int main()
 
 	Http::registerRoutes(svr.get());
 
-	std::thread httpThread([](std::shared_ptr<httplib::Server> svr) { while(true) { svr->listen("0.0.0.0", 9999); } }, svr);
+	std::thread httpThread([](std::shared_ptr<httplib::Server> svr)
+						   {
+							   while (true)
+							   {
+								   svr->listen("0.0.0.0", 9999);
+							   }
+						   },
+						   svr);
 
 	int newfd;
 	while (appletMainLoop())
