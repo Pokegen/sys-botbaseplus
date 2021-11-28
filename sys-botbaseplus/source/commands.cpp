@@ -218,11 +218,9 @@ void Commands::peek(u64 offset, u64 size)
 
 std::string Commands::peekReturn(u64 offset, u64 size)
 {
-	u8 out[size];
+	u8 *out = (u8 *)malloc(sizeof(u8) * size);
 	attach();
-	Result rc = svcReadDebugProcessMemory(&out, debughandle, offset, size);
-	if (R_FAILED(rc) && Variables::debugResultCodes)
-		printf("svcReadDebugProcessMemory: %d\n", rc);
+	Commands::readMem(out, offset, size);
 	detach();
 
 	std::string res = "";
@@ -231,6 +229,7 @@ std::string Commands::peekReturn(u64 offset, u64 size)
 	{
 		res = res + Util::str_fmt("%02X", out[i]);
 	}
+	free(out);
 
 	return res;
 }
