@@ -23,8 +23,8 @@ using namespace BotBasePlus;
 
 extern "C"
 {
-	#define HEAP_SIZE 0x00C00000
-	#define THREAD_SIZE 0x20000
+#define HEAP_SIZE 0x00C00000
+#define THREAD_SIZE 0x20000
 
 	Thread freezeThread, touchThread, keyboardThread, clickThread;
 
@@ -38,12 +38,12 @@ extern "C"
 	Mutex freezeMutex, touchMutex, keyMutex, clickMutex;
 
 	// events for releasing or idling threads
-	Freeze::FreezeThreadState freeze_thr_state = Freeze::Active; 
+	Freeze::FreezeThreadState freeze_thr_state = Freeze::Active;
 	u8 clickThreadState = 0; // 1 = break thread
 	// key and touch events currently being processed
 	Commands::KeyData currentKeyEvent = {0};
 	Commands::TouchData currentTouchEvent = {0};
-	char* currentClick = NULL;
+	char *currentClick = NULL;
 
 	// for cancelling the touch/click thread
 	u8 touchToken = 0;
@@ -119,9 +119,9 @@ extern "C"
 		rc = viInitialize(ViServiceType_Default);
 		if (R_FAILED(rc))
 			fatalThrow(rc);
-    	rc = lblInitialize();
-    		if (R_FAILED(rc))
-        	fatalThrow(rc);
+		rc = lblInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
 	}
 
 	void __appExit(void)
@@ -137,33 +137,33 @@ extern "C"
 	}
 }
 
-void makeTouch(HidTouchState* state, u64 sequentialCount, u64 holdTime, bool hold)
+void makeTouch(HidTouchState *state, u64 sequentialCount, u64 holdTime, bool hold)
 {
-    mutexLock(&touchMutex);
-    memset(&currentTouchEvent, 0, sizeof currentTouchEvent);
-    currentTouchEvent.states = state;
-    currentTouchEvent.sequentialCount = sequentialCount;
-    currentTouchEvent.holdTime = holdTime;
-    currentTouchEvent.hold = hold;
-    currentTouchEvent.state = 1;
-    mutexUnlock(&touchMutex);
+	mutexLock(&touchMutex);
+	memset(&currentTouchEvent, 0, sizeof currentTouchEvent);
+	currentTouchEvent.states = state;
+	currentTouchEvent.sequentialCount = sequentialCount;
+	currentTouchEvent.holdTime = holdTime;
+	currentTouchEvent.hold = hold;
+	currentTouchEvent.state = 1;
+	mutexUnlock(&touchMutex);
 }
 
-void makeKeys(HiddbgKeyboardAutoPilotState* states, u64 sequentialCount)
+void makeKeys(HiddbgKeyboardAutoPilotState *states, u64 sequentialCount)
 {
-    mutexLock(&keyMutex);
-    memset(&currentKeyEvent, 0, sizeof currentKeyEvent);
-    currentKeyEvent.states = states;
-    currentKeyEvent.sequentialCount = sequentialCount;
-    currentKeyEvent.state = 1;
-    mutexUnlock(&keyMutex);
+	mutexLock(&keyMutex);
+	memset(&currentKeyEvent, 0, sizeof currentKeyEvent);
+	currentKeyEvent.states = states;
+	currentKeyEvent.sequentialCount = sequentialCount;
+	currentKeyEvent.state = 1;
+	mutexUnlock(&keyMutex);
 }
 
-void makeClickSeq(char* seq)
+void makeClickSeq(char *seq)
 {
-    mutexLock(&clickMutex);
-    currentClick = seq;
-    mutexUnlock(&clickMutex);
+	mutexLock(&clickMutex);
+	currentClick = seq;
+	mutexUnlock(&clickMutex);
 }
 
 int argmain(int argc, char **argv)
@@ -186,23 +186,23 @@ int argmain(int argc, char **argv)
 	}
 
 	if (!strcmp(argv[0], "peekMulti"))
-    {
-        if(argc < 3 || argc % 2 == 0)
-            return 0;
+	{
+		if (argc < 3 || argc % 2 == 0)
+			return 0;
 
 		Commands::MetaData meta = Commands::getMetaData();
 
-        u64 itemCount = (argc - 1)/2;
-        u64 offsets[itemCount];
-        u64 sizes[itemCount];
+		u64 itemCount = (argc - 1) / 2;
+		u64 offsets[itemCount];
+		u64 sizes[itemCount];
 
-        for (u64 i = 0; i < itemCount; ++i)
-        {
-            offsets[i] = meta.heap_base + Util::parseStringToInt(argv[(i*2)+1]);
-            sizes[i] = Util::parseStringToInt(argv[(i*2)+2]);
-        }
-        Commands::peekMulti(offsets, sizes, itemCount);
-    }
+		for (u64 i = 0; i < itemCount; ++i)
+		{
+			offsets[i] = meta.heap_base + Util::parseStringToInt(argv[(i * 2) + 1]);
+			sizes[i] = Util::parseStringToInt(argv[(i * 2) + 2]);
+		}
+		Commands::peekMulti(offsets, sizes, itemCount);
+	}
 
 	if (!strcmp(argv[0], "peekAbsolute"))
 	{
@@ -216,21 +216,21 @@ int argmain(int argc, char **argv)
 	}
 
 	if (!strcmp(argv[0], "peekAbsoluteMulti"))
-    {
-        if(argc < 3 || argc % 2 == 0)
-            return 0;
+	{
+		if (argc < 3 || argc % 2 == 0)
+			return 0;
 
-        u64 itemCount = (argc - 1)/2;
-        u64 offsets[itemCount];
-        u64 sizes[itemCount];
+		u64 itemCount = (argc - 1) / 2;
+		u64 offsets[itemCount];
+		u64 sizes[itemCount];
 
-        for (u64 i = 0; i < itemCount; ++i)
-        {
-            offsets[i] = Util::parseStringToInt(argv[(i*2)+1]);
-            sizes[i] = Util::parseStringToInt(argv[(i*2)+2]);
-        }
-        Commands::peekMulti(offsets, sizes, itemCount);
-    }
+		for (u64 i = 0; i < itemCount; ++i)
+		{
+			offsets[i] = Util::parseStringToInt(argv[(i * 2) + 1]);
+			sizes[i] = Util::parseStringToInt(argv[(i * 2) + 2]);
+		}
+		Commands::peekMulti(offsets, sizes, itemCount);
+	}
 
 	if (!strcmp(argv[0], "peekMain"))
 	{
@@ -246,23 +246,23 @@ int argmain(int argc, char **argv)
 	}
 
 	if (!strcmp(argv[0], "peekMainMulti"))
-    {
-        if(argc < 3 || argc % 2 == 0)
-            return 0;
-		
+	{
+		if (argc < 3 || argc % 2 == 0)
+			return 0;
+
 		Commands::MetaData meta = Commands::getMetaData();
 
-        u64 itemCount = (argc - 1)/2;
-        u64 offsets[itemCount];
-        u64 sizes[itemCount];
+		u64 itemCount = (argc - 1) / 2;
+		u64 offsets[itemCount];
+		u64 sizes[itemCount];
 
-        for (u64 i = 0; i < itemCount; ++i)
-        {
-            offsets[i] = meta.main_nso_base + Util::parseStringToInt(argv[(i*2)+1]);
-            sizes[i] = Util::parseStringToInt(argv[(i*2)+2]);
-        }
-        Commands::peekMulti(offsets, sizes, itemCount);
-    }
+		for (u64 i = 0; i < itemCount; ++i)
+		{
+			offsets[i] = meta.main_nso_base + Util::parseStringToInt(argv[(i * 2) + 1]);
+			sizes[i] = Util::parseStringToInt(argv[(i * 2) + 2]);
+		}
+		Commands::peekMulti(offsets, sizes, itemCount);
+	}
 
 	//poke <address in hex or dec> <amount of bytes in hex or dec> <data in hex or dec>
 	if (!strcmp(argv[0], "poke"))
@@ -401,32 +401,37 @@ int argmain(int argc, char **argv)
 			u64 shouldActivate = Util::parseStringToInt(argv[2]);
 			Variables::debugResultCodes = shouldActivate != 0;
 		}
-       
-	    if(!strcmp(argv[1], "keySleepTime")){
-            u64 keyTime = Util::parseStringToInt(argv[2]);
-            Commands::keyPressSleepTime = keyTime;
-        }
 
-        if(!strcmp(argv[1], "fingerDiameter")){
-            u32 fDiameter = (u32) Util::parseStringToInt(argv[2]);
-            Commands::fingerDiameter = fDiameter;
-        }
+		if (!strcmp(argv[1], "keySleepTime"))
+		{
+			u64 keyTime = Util::parseStringToInt(argv[2]);
+			Commands::keyPressSleepTime = keyTime;
+		}
 
-        if(!strcmp(argv[1], "pollRate")){
-            u64 fPollRate = Util::parseStringToInt(argv[2]);
-            Commands::pollRate = fPollRate;
-        }
+		if (!strcmp(argv[1], "fingerDiameter"))
+		{
+			u32 fDiameter = (u32)Util::parseStringToInt(argv[2]);
+			Commands::fingerDiameter = fDiameter;
+		}
 
-        if(!strcmp(argv[1], "freezeRate")){
-            u64 fFreezeRate = Util::parseStringToInt(argv[2]);
-            Variables::freezeRate = fFreezeRate;
-        }
+		if (!strcmp(argv[1], "pollRate"))
+		{
+			u64 fPollRate = Util::parseStringToInt(argv[2]);
+			Commands::pollRate = fPollRate;
+		}
 
-        if(!strcmp(argv[1], "controllerType")){
-            Commands::detachController();
-            u8 fControllerType = (u8) Util::parseStringToInt(argv[2]);
-            Commands::controllerInitializedType = (HidDeviceType) fControllerType;
-        }
+		if (!strcmp(argv[1], "freezeRate"))
+		{
+			u64 fFreezeRate = Util::parseStringToInt(argv[2]);
+			Variables::freezeRate = fFreezeRate;
+		}
+
+		if (!strcmp(argv[1], "controllerType"))
+		{
+			Commands::detachController();
+			u8 fControllerType = (u8)Util::parseStringToInt(argv[2]);
+			Commands::controllerInitializedType = (HidDeviceType)fControllerType;
+		}
 	}
 
 	if (!strcmp(argv[0], "getTitleID"))
@@ -493,165 +498,164 @@ int argmain(int argc, char **argv)
 
 	if (!strcmp(argv[0], "pointer"))
 	{
-		if(argc < 2)
-            return 0;
-		s64 jumps[argc-1];
+		if (argc < 2)
+			return 0;
+		s64 jumps[argc - 1];
 		for (int i = 1; i < argc; i++)
-			jumps[i-1] = Util::parseStringToSignedLong(argv[i]);
-		u64 solved = Commands::followMainPointer(jumps, argc-1);
+			jumps[i - 1] = Util::parseStringToSignedLong(argv[i]);
+		u64 solved = Commands::followMainPointer(jumps, argc - 1);
 		printf("%016lX\n", solved);
 	}
 
-	// pointerAll <first (main) jump> <additional jumps> <final jump in pointerexpr> 
-    // possibly redundant between the one above, one needs to go eventually. (little endian, flip it yourself if required)
+	// pointerAll <first (main) jump> <additional jumps> <final jump in pointerexpr>
+	// possibly redundant between the one above, one needs to go eventually. (little endian, flip it yourself if required)
 	if (!strcmp(argv[0], "pointerAll"))
 	{
-		if(argc < 3)
-            return 0;
-        s64 finalJump = Util::parseStringToSignedLong(argv[argc-1]);
-        u64 count = argc - 2;
+		if (argc < 3)
+			return 0;
+		s64 finalJump = Util::parseStringToSignedLong(argv[argc - 1]);
+		u64 count = argc - 2;
 		s64 jumps[count];
-		for (int i = 1; i < argc-1; i++)
-			jumps[i-1] = Util::parseStringToSignedLong(argv[i]);
+		for (int i = 1; i < argc - 1; i++)
+			jumps[i - 1] = Util::parseStringToSignedLong(argv[i]);
 		u64 solved = Commands::followMainPointer(jumps, count);
-        if (solved != 0)
-            solved += finalJump;
+		if (solved != 0)
+			solved += finalJump;
 		printf("%016lX\n", solved);
 	}
 
-	// pointerRelative <first (main) jump> <additional jumps> <final jump in pointerexpr> 
+	// pointerRelative <first (main) jump> <additional jumps> <final jump in pointerexpr>
 	// returns offset relative to heap
 	if (!strcmp(argv[0], "pointerRelative"))
 	{
-		if(argc < 3)
-            return 0;
-        s64 finalJump = Util::parseStringToSignedLong(argv[argc-1]);
-        u64 count = argc - 2;
+		if (argc < 3)
+			return 0;
+		s64 finalJump = Util::parseStringToSignedLong(argv[argc - 1]);
+		u64 count = argc - 2;
 		s64 jumps[count];
-		for (int i = 1; i < argc-1; i++)
-			jumps[i-1] = Util::parseStringToSignedLong(argv[i]);
+		for (int i = 1; i < argc - 1; i++)
+			jumps[i - 1] = Util::parseStringToSignedLong(argv[i]);
 		u64 solved = Commands::followMainPointer(jumps, count);
-        if (solved != 0)
-        {
-            solved += finalJump;
+		if (solved != 0)
+		{
+			solved += finalJump;
 			Commands::MetaData meta = Commands::getMetaData();
-            solved -= meta.heap_base;
-        }
+			solved -= meta.heap_base;
+		}
 		printf("%016lX\n", solved);
 	}
 
 	// pointerPeek <amount of bytes in hex or dec> <first (main) jump> <additional jumps> <final jump in pointerexpr>
-    // warning: no validation
-    if (!strcmp(argv[0], "pointerPeek"))
+	// warning: no validation
+	if (!strcmp(argv[0], "pointerPeek"))
 	{
-		if(argc < 4)
-            return 0;
+		if (argc < 4)
+			return 0;
 
-        s64 finalJump = Util::parseStringToSignedLong(argv[argc-1]);
+		s64 finalJump = Util::parseStringToSignedLong(argv[argc - 1]);
 		u64 size = Util::parseStringToInt(argv[1]);
-        u64 count = argc - 3;
+		u64 count = argc - 3;
 		s64 jumps[count];
-		for (int i = 2; i < argc-1; i++)
-			jumps[i-2] = Util::parseStringToSignedLong(argv[i]);
+		for (int i = 2; i < argc - 1; i++)
+			jumps[i - 2] = Util::parseStringToSignedLong(argv[i]);
 		u64 solved = Commands::followMainPointer(jumps, count);
-        solved += finalJump;
-        Commands::peek(solved, size);
+		solved += finalJump;
+		Commands::peek(solved, size);
 	}
 
 	// pointerPeekMulti <amount of bytes in hex or dec> <first (main) jump> <additional jumps> <final jump in pointerexpr> split by asterisks (*)
-    // warning: no validation
-    if (!strcmp(argv[0], "pointerPeekMulti"))
+	// warning: no validation
+	if (!strcmp(argv[0], "pointerPeekMulti"))
 	{
-		if(argc < 4)
-            return 0;
+		if (argc < 4)
+			return 0;
 
-        // we guess a max of 40 for now
-        u64 offsets[40];
-        u64 sizes[40];
-        u64 itemCount = 0;
+		// we guess a max of 40 for now
+		u64 offsets[40];
+		u64 sizes[40];
+		u64 itemCount = 0;
 
-        int currIndex = 1;
-        int lastIndex = 1;
+		int currIndex = 1;
+		int lastIndex = 1;
 
-        while (currIndex < argc)
-        {
-            // count first
-            char* thisArg = argv[currIndex];
-            while (strcmp(thisArg, "*"))
-            {   
-                currIndex++;
-                if (currIndex < argc)
-                    thisArg = argv[currIndex];
-                else 
-                    break;
-            }
+		while (currIndex < argc)
+		{
+			// count first
+			char *thisArg = argv[currIndex];
+			while (strcmp(thisArg, "*"))
+			{
+				currIndex++;
+				if (currIndex < argc)
+					thisArg = argv[currIndex];
+				else
+					break;
+			}
 
-            int thisCount = currIndex - lastIndex;
+			int thisCount = currIndex - lastIndex;
 
-            s64 finalJump = Util::parseStringToSignedLong(argv[currIndex-1]);
-            u64 size = Util::parseStringToSignedLong(argv[lastIndex]);
-            int count = thisCount - 2;
-            s64 jumps[count];
-            for (int i = 1; i < count+1; i++)
-                jumps[i-1] = Util::parseStringToSignedLong(argv[i+lastIndex]);
-            u64 solved = Commands::followMainPointer(jumps, count);
-            solved += finalJump;
+			s64 finalJump = Util::parseStringToSignedLong(argv[currIndex - 1]);
+			u64 size = Util::parseStringToSignedLong(argv[lastIndex]);
+			int count = thisCount - 2;
+			s64 jumps[count];
+			for (int i = 1; i < count + 1; i++)
+				jumps[i - 1] = Util::parseStringToSignedLong(argv[i + lastIndex]);
+			u64 solved = Commands::followMainPointer(jumps, count);
+			solved += finalJump;
 
-            offsets[itemCount] = solved;
-            sizes[itemCount] = size;
-            itemCount++;
-            currIndex++;
-            lastIndex = currIndex;
-        }
+			offsets[itemCount] = solved;
+			sizes[itemCount] = size;
+			itemCount++;
+			currIndex++;
+			lastIndex = currIndex;
+		}
 
-        Commands::peekMulti(offsets, sizes, itemCount);
+		Commands::peekMulti(offsets, sizes, itemCount);
 	}
 
 	// pointerPoke <data to be sent> <first (main) jump> <additional jumps> <final jump in pointerexpr>
-    // warning: no validation
-    if (!strcmp(argv[0], "pointerPoke"))
+	// warning: no validation
+	if (!strcmp(argv[0], "pointerPoke"))
 	{
-		if(argc < 4)
-            return 0;
+		if (argc < 4)
+			return 0;
 
-        s64 finalJump = Util::parseStringToSignedLong(argv[argc-1]);
-        u64 count = argc - 3;
+		s64 finalJump = Util::parseStringToSignedLong(argv[argc - 1]);
+		u64 count = argc - 3;
 		s64 jumps[count];
-		for (int i = 2; i < argc-1; i++)
-			jumps[i-2] = Util::parseStringToSignedLong(argv[i]);
+		for (int i = 2; i < argc - 1; i++)
+			jumps[i - 2] = Util::parseStringToSignedLong(argv[i]);
 		u64 solved = Commands::followMainPointer(jumps, count);
-        solved += finalJump;
+		solved += finalJump;
 
 		u64 size;
-        u8* data = Util::parseStringToByteBuffer(argv[1], &size);
-        Commands::poke(solved, size, data);
-        free(data);
+		u8 *data = Util::parseStringToByteBuffer(argv[1], &size);
+		Commands::poke(solved, size, data);
+		free(data);
 	}
-
 
 	// add to freeze map
 	if (!strcmp(argv[0], "freeze"))
-    {
-        if(argc != 3)
-            return 0;
+	{
+		if (argc != 3)
+			return 0;
 
 		Commands::MetaData meta = Commands::getMetaData();
 
-        u64 offset = Util::parseStringToInt(argv[1]);
-        u64 size = 0;
-        u8* data = Util::parseStringToByteBuffer(argv[2], &size);
-        Freeze::addToFreezeMap(offset, data, size, meta.titleID);
-    }
+		u64 offset = Util::parseStringToInt(argv[1]);
+		u64 size = 0;
+		u8 *data = Util::parseStringToByteBuffer(argv[2], &size);
+		Freeze::addToFreezeMap(offset, data, size, meta.titleID);
+	}
 
 	// remove from freeze map
 	if (!strcmp(argv[0], "unFreeze"))
-    {
-        if(argc != 2)
-            return 0;
+	{
+		if (argc != 2)
+			return 0;
 
-        u64 offset = Util::parseStringToInt(argv[1]);
-        Freeze::removeFromFreezeMap(offset);
-    }
+		u64 offset = Util::parseStringToInt(argv[1]);
+		Freeze::removeFromFreezeMap(offset);
+	}
 
 	// get count of offsets being frozen
 	if (!strcmp(argv[0], "freezeCount"))
@@ -666,171 +670,172 @@ int argmain(int argc, char **argv)
 		freeze_thr_state = Freeze::Idle;
 	}
 
-    if (!strcmp(argv[0], "freezePause"))
+	if (!strcmp(argv[0], "freezePause"))
 		freeze_thr_state = Freeze::Pause;
 
-    if (!strcmp(argv[0], "freezeUnpause"))
+	if (!strcmp(argv[0], "freezeUnpause"))
 		freeze_thr_state = Freeze::Active;
 
-    //touch followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is sequential taps, not different fingers. Functions in its own thread, but will not allow the call again while running. tapcount * pollRate * 2
-    if (!strcmp(argv[0], "touch"))
+	//touch followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is sequential taps, not different fingers. Functions in its own thread, but will not allow the call again while running. tapcount * pollRate * 2
+	if (!strcmp(argv[0], "touch"))
 	{
-        if(argc < 3 || argc % 2 == 0)
-            return 0;
+		if (argc < 3 || argc % 2 == 0)
+			return 0;
 
-        u32 count = (argc-1)/2;
-		HidTouchState* state = (HidTouchState*)calloc(count, sizeof(HidTouchState));
-        u32 i, j = 0;
-        for (i = 0; i < count; ++i)
-        {
-            state[i].diameter_x = state[i].diameter_y = Commands::fingerDiameter;
-            state[i].x = (u32) Util::parseStringToInt(argv[++j]);
-            state[i].y = (u32) Util::parseStringToInt(argv[++j]);
-        }
+		u32 count = (argc - 1) / 2;
+		HidTouchState *state = (HidTouchState *)calloc(count, sizeof(HidTouchState));
+		u32 i, j = 0;
+		for (i = 0; i < count; ++i)
+		{
+			state[i].diameter_x = state[i].diameter_y = Commands::fingerDiameter;
+			state[i].x = (u32)Util::parseStringToInt(argv[++j]);
+			state[i].y = (u32)Util::parseStringToInt(argv[++j]);
+		}
 
-        makeTouch(state, count, Commands::pollRate * 1e+6L, false);
+		makeTouch(state, count, Commands::pollRate * 1e+6L, false);
 	}
 
-    //touchHold <x in the range 0-1280> <y in the range 0-720> <time in milliseconds (must be at least 15ms)>. Functions in its own thread, but will not allow the call again while running. pollRate + holdtime
-    if(!strcmp(argv[0], "touchHold")){
-        if(argc != 4)
-            return 0;
-
-        HidTouchState* state = (HidTouchState*)calloc(1, sizeof(HidTouchState));
-        state->diameter_x = state->diameter_y = Commands::fingerDiameter;
-        state->x = (u32) Util::parseStringToInt(argv[1]);
-        state->y = (u32) Util::parseStringToInt(argv[2]);
-        u64 time = Util::parseStringToInt(argv[3]);
-        makeTouch(state, 1, time * 1e+6L, false);
-    }
-
-    //touchDraw followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is vectors of where finger moves to, then removes the finger. Functions in its own thread, but will not allow the call again while running. (vectorcount * pollRate * 2) + pollRate
-    if (!strcmp(argv[0], "touchDraw"))
+	//touchHold <x in the range 0-1280> <y in the range 0-720> <time in milliseconds (must be at least 15ms)>. Functions in its own thread, but will not allow the call again while running. pollRate + holdtime
+	if (!strcmp(argv[0], "touchHold"))
 	{
-        if(argc < 3 || argc % 2 == 0)
-            return 0;
+		if (argc != 4)
+			return 0;
 
-        u32 count = (argc-1)/2;
-		HidTouchState* state = (HidTouchState*)calloc(count, sizeof(HidTouchState));
-        u32 i, j = 0;
-        for (i = 0; i < count; ++i)
-        {
-            state[i].diameter_x = state[i].diameter_y = Commands::fingerDiameter;
-            state[i].x = (u32) Util::parseStringToInt(argv[++j]);
-            state[i].y = (u32) Util::parseStringToInt(argv[++j]);
-        }
-
-        makeTouch(state, count, Commands::pollRate * 1e+6L * 2, true);
+		HidTouchState *state = (HidTouchState *)calloc(1, sizeof(HidTouchState));
+		state->diameter_x = state->diameter_y = Commands::fingerDiameter;
+		state->x = (u32)Util::parseStringToInt(argv[1]);
+		state->y = (u32)Util::parseStringToInt(argv[2]);
+		u64 time = Util::parseStringToInt(argv[3]);
+		makeTouch(state, 1, time * 1e+6L, false);
 	}
 
-    if (!strcmp(argv[0], "touchCancel"))
-        touchToken = 1;
-
-    //key followed by arrayof: <HidKeyboardKey> to be pressed in sequential order
-    //thank you Red (hp3721) for this functionality
-    if (!strcmp(argv[0], "key"))
+	//touchDraw followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is vectors of where finger moves to, then removes the finger. Functions in its own thread, but will not allow the call again while running. (vectorcount * pollRate * 2) + pollRate
+	if (!strcmp(argv[0], "touchDraw"))
 	{
-        if (argc < 2)
-            return 0;
+		if (argc < 3 || argc % 2 == 0)
+			return 0;
 
-        u64 count = argc-1;
-        HiddbgKeyboardAutoPilotState* keystates = (HiddbgKeyboardAutoPilotState*)calloc(count, sizeof (HiddbgKeyboardAutoPilotState));
-        u64 i;
-        for (i = 0; i < count; i++)
-        {
-            u8 key = (u8) Util::parseStringToInt(argv[i+1]);
-            if (key < 4 || key > 231)
-                continue;
-            keystates[i].keys[key / 64] = 1UL << key;
-            keystates[i].modifiers = 1024UL; //numlock
-        }
+		u32 count = (argc - 1) / 2;
+		HidTouchState *state = (HidTouchState *)calloc(count, sizeof(HidTouchState));
+		u32 i, j = 0;
+		for (i = 0; i < count; ++i)
+		{
+			state[i].diameter_x = state[i].diameter_y = Commands::fingerDiameter;
+			state[i].x = (u32)Util::parseStringToInt(argv[++j]);
+			state[i].y = (u32)Util::parseStringToInt(argv[++j]);
+		}
 
-        makeKeys(keystates, count);
-    }
+		makeTouch(state, count, Commands::pollRate * 1e+6L * 2, true);
+	}
 
-    //keyMod followed by arrayof: <HidKeyboardKey> <HidKeyboardModifier>(without the bitfield shift) to be pressed in sequential order
-    if (!strcmp(argv[0], "keyMod"))
+	if (!strcmp(argv[0], "touchCancel"))
+		touchToken = 1;
+
+	//key followed by arrayof: <HidKeyboardKey> to be pressed in sequential order
+	//thank you Red (hp3721) for this functionality
+	if (!strcmp(argv[0], "key"))
 	{
-        if (argc < 3 || argc % 2 == 0)
-            return 0;
+		if (argc < 2)
+			return 0;
 
-        u32 count = (argc-1)/2;
-        HiddbgKeyboardAutoPilotState* keystates = (HiddbgKeyboardAutoPilotState*)calloc(count, sizeof (HiddbgKeyboardAutoPilotState));
-        u64 i, j = 0;
-        for (i = 0; i < count; i++)
-        {
-            u8 key = (u8) Util::parseStringToInt(argv[++j]);
-            if (key < 4 || key > 231)
-                continue;
-            keystates[i].keys[key / 64] = 1UL << key;
-            keystates[i].modifiers = BIT((u8) Util::parseStringToInt(argv[++j]));
-        }
+		u64 count = argc - 1;
+		HiddbgKeyboardAutoPilotState *keystates = (HiddbgKeyboardAutoPilotState *)calloc(count, sizeof(HiddbgKeyboardAutoPilotState));
+		u64 i;
+		for (i = 0; i < count; i++)
+		{
+			u8 key = (u8)Util::parseStringToInt(argv[i + 1]);
+			if (key < 4 || key > 231)
+				continue;
+			keystates[i].keys[key / 64] = 1UL << key;
+			keystates[i].modifiers = 1024UL; //numlock
+		}
 
-        makeKeys(keystates, count);
-    }
+		makeKeys(keystates, count);
+	}
 
-    //keyMulti followed by arrayof: <HidKeyboardKey> to be pressed at the same time.
-    if (!strcmp(argv[0], "keyMulti"))
+	//keyMod followed by arrayof: <HidKeyboardKey> <HidKeyboardModifier>(without the bitfield shift) to be pressed in sequential order
+	if (!strcmp(argv[0], "keyMod"))
 	{
-        if (argc < 2)
-            return 0;
+		if (argc < 3 || argc % 2 == 0)
+			return 0;
 
-        u64 count = argc-1;
-        HiddbgKeyboardAutoPilotState* keystate = (HiddbgKeyboardAutoPilotState*)calloc(1, sizeof (HiddbgKeyboardAutoPilotState));
-        u64 i;
-        for (i = 0; i < count; i++)
-        {
-            u8 key = (u8) Util::parseStringToInt(argv[i+1]);
-            if (key < 4 || key > 231)
-                continue;
-            keystate[0].keys[key / 64] |= 1UL << key;
-        }
+		u32 count = (argc - 1) / 2;
+		HiddbgKeyboardAutoPilotState *keystates = (HiddbgKeyboardAutoPilotState *)calloc(count, sizeof(HiddbgKeyboardAutoPilotState));
+		u64 i, j = 0;
+		for (i = 0; i < count; i++)
+		{
+			u8 key = (u8)Util::parseStringToInt(argv[++j]);
+			if (key < 4 || key > 231)
+				continue;
+			keystates[i].keys[key / 64] = 1UL << key;
+			keystates[i].modifiers = BIT((u8)Util::parseStringToInt(argv[++j]));
+		}
 
-        makeKeys(keystate, 1);
-    }
+		makeKeys(keystates, count);
+	}
 
-    //turns off the screen (display)
-    if (!strcmp(argv[0], "screenOff"))
+	//keyMulti followed by arrayof: <HidKeyboardKey> to be pressed at the same time.
+	if (!strcmp(argv[0], "keyMulti"))
 	{
-        ViDisplay temp_display;
-        Result rc = viOpenDisplay("Internal", &temp_display);
-        if (R_FAILED(rc))
-            rc = viOpenDefaultDisplay(&temp_display);
-        if (R_SUCCEEDED(rc))
-        {
-            rc = viSetDisplayPowerState(&temp_display, ViPowerState_NotScanning); // not scanning keeps the screen on but does not push new pixels to the display. Battery save is non-negligible and should be used where possible
-            svcSleepThread(1e+6l);
-            viCloseDisplay(&temp_display);
-            lblSwitchBacklightOff(1ul);
-        }
-    }
+		if (argc < 2)
+			return 0;
 
-    //turns on the screen (display)
-    if (!strcmp(argv[0], "screenOn"))
-	{
-        ViDisplay temp_display;
-        Result rc = viOpenDisplay("Internal", &temp_display);
-        if (R_FAILED(rc))
-            rc = viOpenDefaultDisplay(&temp_display);
-        if (R_SUCCEEDED(rc))
-        {
-            rc = viSetDisplayPowerState(&temp_display, ViPowerState_On);
-            svcSleepThread(1e+6l);
-            viCloseDisplay(&temp_display);
-            lblSwitchBacklightOn(1ul);
-        }
-    }
+		u64 count = argc - 1;
+		HiddbgKeyboardAutoPilotState *keystate = (HiddbgKeyboardAutoPilotState *)calloc(1, sizeof(HiddbgKeyboardAutoPilotState));
+		u64 i;
+		for (i = 0; i < count; i++)
+		{
+			u8 key = (u8)Util::parseStringToInt(argv[i + 1]);
+			if (key < 4 || key > 231)
+				continue;
+			keystate[0].keys[key / 64] |= 1UL << key;
+		}
 
-    if (!strcmp(argv[0], "charge"))
+		makeKeys(keystate, 1);
+	}
+
+	//turns off the screen (display)
+	if (!strcmp(argv[0], "screenOff"))
 	{
-        u32 charge;
-        Result rc = psmInitialize();
-        if (R_FAILED(rc))
-            fatalThrow(rc);
-        psmGetBatteryChargePercentage(&charge);
-        printf("%d\n", charge);
-        psmExit();
-    }
+		ViDisplay temp_display;
+		Result rc = viOpenDisplay("Internal", &temp_display);
+		if (R_FAILED(rc))
+			rc = viOpenDefaultDisplay(&temp_display);
+		if (R_SUCCEEDED(rc))
+		{
+			rc = viSetDisplayPowerState(&temp_display, ViPowerState_NotScanning); // not scanning keeps the screen on but does not push new pixels to the display. Battery save is non-negligible and should be used where possible
+			svcSleepThread(1e+6l);
+			viCloseDisplay(&temp_display);
+			lblSwitchBacklightOff(1ul);
+		}
+	}
+
+	//turns on the screen (display)
+	if (!strcmp(argv[0], "screenOn"))
+	{
+		ViDisplay temp_display;
+		Result rc = viOpenDisplay("Internal", &temp_display);
+		if (R_FAILED(rc))
+			rc = viOpenDefaultDisplay(&temp_display);
+		if (R_SUCCEEDED(rc))
+		{
+			rc = viSetDisplayPowerState(&temp_display, ViPowerState_On);
+			svcSleepThread(1e+6l);
+			viCloseDisplay(&temp_display);
+			lblSwitchBacklightOn(1ul);
+		}
+	}
+
+	if (!strcmp(argv[0], "charge"))
+	{
+		u32 charge;
+		Result rc = psmInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		psmGetBatteryChargePercentage(&charge);
+		printf("%d\n", charge);
+		psmExit();
+	}
 
 	return 0;
 }
@@ -887,9 +892,42 @@ int main()
 						   svr);
 
 	int newfd;
+
+	Result rc;
+	int fr_count = 0;
+
+	Freeze::initFreezes();
+
+	// freeze thread
+	mutexInit(&freezeMutex);
+	rc = threadCreate(&freezeThread, sub_freeze, (void *)&freeze_thr_state, NULL, THREAD_SIZE, 0x2C, -2);
+	if (R_SUCCEEDED(rc))
+		rc = threadStart(&freezeThread);
+
+	// touch thread
+	mutexInit(&touchMutex);
+	rc = threadCreate(&touchThread, sub_touch, (void *)&currentTouchEvent, NULL, THREAD_SIZE, 0x2C, -2);
+	if (R_SUCCEEDED(rc))
+		rc = threadStart(&touchThread);
+
+	// key thread
+	mutexInit(&keyMutex);
+	rc = threadCreate(&keyboardThread, sub_key, (void *)&currentKeyEvent, NULL, THREAD_SIZE, 0x2C, -2);
+	if (R_SUCCEEDED(rc))
+		rc = threadStart(&keyboardThread);
+
+	// click sequence thread
+	mutexInit(&clickMutex);
+	rc = threadCreate(&clickThread, sub_click, (void *)currentClick, NULL, THREAD_SIZE, 0x2C, -2);
+	if (R_SUCCEEDED(rc))
+		rc = threadStart(&clickThread);
+
+	Util::flashLed();
+
 	while (appletMainLoop())
 	{
 		poll(pfds, fd_count, -1);
+		mutexLock(&freezeMutex);
 		for (int i = 0; i < fd_count; i++)
 		{
 			if (pfds[i].revents & POLLIN)
@@ -947,8 +985,180 @@ int main()
 				}
 			}
 		}
+		fr_count = Freeze::getFreezeCount(false);
+		if (fr_count == 0)
+			freeze_thr_state = Freeze::Idle;
+		mutexUnlock(&freezeMutex);
 		svcSleepThread(Variables::mainLoopSleepTime * 1e+6L);
 	}
 
+	if (R_SUCCEEDED(rc))
+	{
+		freeze_thr_state = Freeze::Exit;
+		threadWaitForExit(&freezeThread);
+		threadClose(&freezeThread);
+		currentTouchEvent.state = 3;
+		threadWaitForExit(&touchThread);
+		threadClose(&touchThread);
+		currentKeyEvent.state = 3;
+		threadWaitForExit(&keyboardThread);
+		threadClose(&keyboardThread);
+		clickThreadState = 1;
+		threadWaitForExit(&clickThread);
+	}
+
+	Freeze::clearFreezes();
+	Freeze::freeFreezes();
+
 	return 0;
+}
+
+void sub_freeze(void *arg)
+{
+	u64 heap_base;
+	u64 tid_now = 0;
+	u64 pid = 0;
+	bool wait_su = false;
+	int freezecount = 0;
+
+IDLE:
+	while (freezecount == 0)
+	{
+		if (*(Freeze::FreezeThreadState *)arg == Freeze::Exit)
+			break;
+
+		// do nothing
+		svcSleepThread(1e+9L);
+		freezecount = Freeze::getFreezeCount(false);
+	}
+
+	while (1)
+	{
+		if (*(Freeze::FreezeThreadState *)arg == Freeze::Exit)
+			break;
+
+		if (*(Freeze::FreezeThreadState *)arg == Freeze::Idle) // no freeze
+		{
+			mutexLock(&freezeMutex);
+			freeze_thr_state = Freeze::Active;
+			mutexUnlock(&freezeMutex); // stupid but it works so is it really stupid? (yes)
+			freezecount = 0;
+			wait_su = false;
+			goto IDLE;
+		}
+		else if (*(Freeze::FreezeThreadState *)arg == Freeze::Pause)
+		{
+			svcSleepThread(1e+8L); //1s
+			continue;
+		}
+
+		mutexLock(&freezeMutex);
+		Commands::attach();
+		heap_base = Commands::getHeapBase(Commands::debughandle);
+		pmdmntGetApplicationProcessId(&pid);
+		tid_now = Commands::getTitleId(pid);
+		Commands::detach();
+
+		// don't freeze on startup of new tid to remove any chance of save corruption
+		if (tid_now == 0)
+		{
+			mutexUnlock(&freezeMutex);
+			svcSleepThread(1e+10L);
+			wait_su = true;
+			continue;
+		}
+
+		if (wait_su)
+		{
+			mutexUnlock(&freezeMutex);
+			svcSleepThread(3e+10L);
+			wait_su = false;
+			mutexLock(&freezeMutex);
+		}
+
+		if (heap_base > 0)
+		{
+			Commands::attach();
+			for (int j = 0; j < FREEZE_DIC_LENGTH; j++)
+			{
+				if (Freeze::freezes[j].state == 1 && Freeze::freezes[j].titleId == tid_now)
+				{
+					Commands::writeMem(heap_base + Freeze::freezes[j].address, Freeze::freezes[j].size, Freeze::freezes[j].vData);
+				}
+			}
+			Commands::detach();
+		}
+
+		mutexUnlock(&freezeMutex);
+		svcSleepThread(Variables::freezeRate * 1e+6L);
+		tid_now = 0;
+		pid = 0;
+	}
+}
+
+void sub_touch(void *arg)
+{
+	while (1)
+	{
+		Commands::TouchData *touchPtr = (Commands::TouchData *)arg;
+		if (touchPtr->state == 1)
+		{
+			mutexLock(&touchMutex); // don't allow any more assignments to the touch var (will lock the main thread)
+			Commands::touch(touchPtr->states, touchPtr->sequentialCount, touchPtr->holdTime, touchPtr->hold, &touchToken);
+			free(touchPtr->states);
+			touchPtr->state = 0;
+			mutexUnlock(&touchMutex);
+		}
+
+		svcSleepThread(1e+6L);
+
+		touchToken = 0;
+
+		if (touchPtr->state == 3)
+			break;
+	}
+}
+
+void sub_key(void *arg)
+{
+	while (1)
+	{
+		Commands::KeyData *keyPtr = (Commands::KeyData *)arg;
+		if (keyPtr->state == 1)
+		{
+			mutexLock(&keyMutex);
+			Commands::key(keyPtr->states, keyPtr->sequentialCount);
+			free(keyPtr->states);
+			keyPtr->state = 0;
+			mutexUnlock(&keyMutex);
+		}
+
+		svcSleepThread(1e+6L);
+
+		if (keyPtr->state == 3)
+			break;
+	}
+}
+
+void sub_click(void *arg)
+{
+	while (1)
+	{
+		if (clickThreadState == 1)
+			break;
+
+		if (currentClick != NULL)
+		{
+			mutexLock(&clickMutex);
+			Commands::clickSequence(currentClick, &clickToken);
+			free(currentClick);
+			currentClick = NULL;
+			mutexUnlock(&clickMutex);
+			printf("done\n");
+		}
+
+		clickToken = 0;
+
+		svcSleepThread(1e+6L);
+	}
 }

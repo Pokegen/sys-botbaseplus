@@ -17,11 +17,12 @@ namespace BotBasePlus
 			u64 titleId;
 		} FreezeBlock;
 
-		typedef enum {
-    		Active = 0,
-    		Exit = 1,
-    		Idle = 2,
-    		Pause = 3
+		typedef enum
+		{
+			Active = 0,
+			Exit = 1,
+			Idle = 2,
+			Pause = 3
 		} FreezeThreadState;
 
 		extern FreezeBlock *freezes;
