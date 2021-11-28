@@ -12,7 +12,8 @@ using namespace BotBasePlus;
 
 void Http::registerRoutes(httplib::Server *svr)
 {
-	svr->Get("/version", [](const httplib::Request &req, httplib::Response &res) {
+	svr->Get("/version", [](const httplib::Request &req, httplib::Response &res)
+			 {
 		if (validateAuthentication(req, res) == false)
 			return;
 
@@ -23,7 +24,8 @@ void Http::registerRoutes(httplib::Server *svr)
 		setContent(res, Json::toString(d));
 	});
 
-	svr->Get("/healthz", [](const httplib::Request &req, httplib::Response &res) {
+	svr->Get("/healthz", [](const httplib::Request &req, httplib::Response &res)
+			 {
 		if (validateAuthentication(req, res) == false)
 			return;
 
@@ -34,7 +36,8 @@ void Http::registerRoutes(httplib::Server *svr)
 		setContent(res, Json::toString(d));
 	});
 
-	svr->Get("/metadata", [](const httplib::Request &req, httplib::Response &res) {
+	svr->Get("/metadata", [](const httplib::Request &req, httplib::Response &res)
+			 {
 		if (validateAuthentication(req, res) == false)
 			return;
 
@@ -48,7 +51,8 @@ void Http::registerRoutes(httplib::Server *svr)
 		setContent(res, Json::toString(d));
 	});
 
-	svr->Post("/", [](const httplib::Request &req, httplib::Response &res) {
+	svr->Post("/", [](const httplib::Request &req, httplib::Response &res)
+			  {
 		if (validateAuthentication(req, res) == false)
 			return;
 

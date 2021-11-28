@@ -13,7 +13,7 @@ namespace BotBasePlus
 		extern HiddbgHdlsHandle controllerHandle;
 		extern HiddbgHdlsDeviceInfo controllerDevice;
 		extern HiddbgHdlsState controllerState;
-		
+
 		extern u64 buttonClickSleepTime;
 		extern u64 keyPressSleepTime;
 		extern u64 pollRate; // polling is linked to screen refresh rate (system UI) or game framerate. Most cases this is 1/60 or 1/30
@@ -61,16 +61,16 @@ namespace BotBasePlus
 		void writeMem(u64 offset, u64 size, u8 *val);
 		void readMem(u8 *out, u64 offset, u64 size);
 		std::string peekReturn(u64 offset, u64 size);
-		void peekMulti(u64* offset, u64* size, u64 count);
+		void peekMulti(u64 *offset, u64 *size, u64 count);
 		void click(HidNpadButton btn);
 		void press(HidNpadButton btn);
 		void release(HidNpadButton btn);
 		void setStickState(int side, int dxVal, int dyVal);
-		void reverseArray(u8* arr, int start, int end);
-		u64 followMainPointer(s64* jumps, size_t count);
-		void touch(HidTouchState* state, u64 sequentialCount, u64 holdTime, bool hold, u8* token);
-		void key(HiddbgKeyboardAutoPilotState* states, u64 sequentialCount);
-		void clickSequence(char* seq, u8* token);
+		void reverseArray(u8 *arr, int start, int end);
+		u64 followMainPointer(s64 *jumps, size_t count);
+		void touch(HidTouchState *state, u64 sequentialCount, u64 holdTime, bool hold, u8 *token);
+		void key(HiddbgKeyboardAutoPilotState *states, u64 sequentialCount);
+		void clickSequence(char *seq, u8 *token);
 
 	} // namespace Commands
 
