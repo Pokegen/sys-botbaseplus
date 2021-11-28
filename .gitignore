@@ -38,3 +38,5 @@
 # Builds
 build/
 out/
+
+.history
