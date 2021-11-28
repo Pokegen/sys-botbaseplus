@@ -15,7 +15,7 @@ If you wanna run this you need a switch with cfw installed (preferably Atmospher
 
 ## Getting Started
 
-> This sys-module was only tested on Atmosphere 0.19.1, so if you use another version or cfw your experience might vary
+> This sys-module was only tested on Atmosphere 1.2.4, so if you use another version or cfw your experience might vary
 
 #### Using the .zip
 
