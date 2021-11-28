@@ -8,6 +8,7 @@ namespace BotBasePlus
 	namespace Variables
 	{
 		extern u64 mainLoopSleepTime;
+		extern u64 freezeRate;
 		extern bool debugResultCodes;
 
 		extern bool echoCommands;

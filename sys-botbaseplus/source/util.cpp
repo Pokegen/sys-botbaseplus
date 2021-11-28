@@ -13,6 +13,28 @@
 
 using namespace BotBasePlus;
 
+// taken from sys-httpd (thanks jolan!)
+static const HidsysNotificationLedPattern breathingpattern = {
+    .baseMiniCycleDuration = 0x8, // 100ms.
+    .totalMiniCycles = 0x2,       // 3 mini cycles. Last one 12.5ms.
+    .totalFullCycles = 0x2,       // 2 full cycles.
+    .startIntensity = 0x2,        // 13%.
+    .miniCycles = {
+        // First cycle
+        {
+            .ledIntensity = 0xF,      // 100%.
+            .transitionSteps = 0xF,   // 15 steps. Transition time 1.5s.
+            .finalStepDuration = 0x0, // 12.5ms.
+        },
+        // Second cycle
+        {
+            .ledIntensity = 0x2,      // 13%.
+            .transitionSteps = 0xF,   // 15 steps. Transition time 1.5s.
+            .finalStepDuration = 0x0, // 12.5ms.
+        },
+    },
+};
+
 int Util::setupServerSocket()
 {
 	int lissock;
@@ -46,6 +68,18 @@ u64 Util::parseStringToInt(char *arg)
 	}
 	u64 ret = strtoul(arg, NULL, 10);
 	return ret;
+}
+
+s64 Util::parseStringToSignedLong(char* arg)
+{
+    if(strlen(arg) > 2){
+        if(arg[1] == 'x' || arg[2] == 'x'){
+            s64 ret = strtol(arg, NULL, 16);
+            return ret;
+        }
+    }
+    s64 ret = strtol(arg, NULL, 10);
+    return ret;
 }
 
 u8 *Util::parseStringToByteBuffer(char *arg, u64 *size)
@@ -213,4 +247,26 @@ std::string Util::str_fmt(const std::string fmt_str, ...)
 			break;
 	}
 	return std::string(formatted.get());
+}
+
+static void sendPatternStatic(const HidsysNotificationLedPattern* pattern)
+{
+    s32 total_entries;
+    HidsysUniquePadId unique_pad_ids[2]={0};
+
+    Result rc = hidsysGetUniquePadsFromNpad(HidNpadIdType_Handheld, unique_pad_ids, 2, &total_entries);
+    if (R_FAILED(rc))
+        return; // probably incompatible or no pads connected
+
+    for (int i = 0; i < total_entries; i++)
+        rc = hidsysSetNotificationLedPattern(pattern, unique_pad_ids[i]);
+}
+
+void Util::flashLed()
+{
+    Result rc = hidsysInitialize();
+    if (R_FAILED(rc))
+        fatalThrow(rc);
+    sendPatternStatic(&breathingpattern);
+    hidsysExit();
 }

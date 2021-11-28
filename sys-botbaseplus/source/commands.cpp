@@ -10,20 +10,21 @@
 
 using namespace BotBasePlus;
 
-//Controller:
+// Controller:
 bool Commands::bControllerIsInitialised = false;
+HidDeviceType Commands::controllerInitializedType = HidDeviceType_FullKey3;
 HiddbgHdlsHandle Commands::controllerHandle = {0};
 HiddbgHdlsDeviceInfo Commands::controllerDevice = {0};
 HiddbgHdlsState Commands::controllerState = {0};
 
-//Keyboard:
+// Keyboard:
 HiddbgKeyboardAutoPilotState dummyKeyboardState = {0};
 
 Handle Commands::debughandle = 0;
 u64 Commands::buttonClickSleepTime = 50;
-u64 keyPressSleepTime = 25;
-u64 pollRate = 17; // polling is linked to screen refresh rate (system UI) or game framerate. Most cases this is 1/60 or 1/30
-u32 fingerDiameter = 50;
+u64 Commands::keyPressSleepTime = 25;
+u64 Commands::pollRate = 17; // polling is linked to screen refresh rate (system UI) or game framerate. Most cases this is 1/60 or 1/30
+u32 Commands::fingerDiameter = 50;
 HiddbgHdlsSessionId sessionId = {0};
 
 void Commands::attach()
@@ -139,12 +140,12 @@ void Commands::initController()
 {
 	if (Commands::bControllerIsInitialised)
 		return;
-	//taken from switchexamples github
+	// taken from switchexamples github
 	Result rc = hiddbgInitialize();
 	if (R_FAILED(rc) && Variables::debugResultCodes)
 		printf("hiddbgInitialize: %d\n", rc);
 	// Set the controller type to Pro-Controller, and set the npadInterfaceType.
-	Commands::controllerDevice.deviceType = HidDeviceType_FullKey3;
+	Commands::controllerDevice.deviceType = Commands::controllerInitializedType;
 	Commands::controllerDevice.npadInterfaceType = HidNpadInterfaceType_Bluetooth;
 	// Set the controller colors. The grip colors are for Pro-Controller on [9.0.0+].
 	Commands::controllerDevice.singleColorBody = RGBA8_MAXALPHA(255, 255, 255);
@@ -164,7 +165,7 @@ void Commands::initController()
 	rc = hiddbgAttachHdlsVirtualDevice(&Commands::controllerHandle, &Commands::controllerDevice);
 	if (R_FAILED(rc) && Variables::debugResultCodes)
 		printf("hiddbgAttachHdlsVirtualDevice: %d\n", rc);
-	//init a dummy keyboard state for assignment between keypresses
+	// init a dummy keyboard state for assignment between keypresses
 	dummyKeyboardState.keys[3] = 0x800000000000000UL; // Hackfix found by Red: an unused key press (KBD_MEDIA_CALC) is required to allow sequential same-key presses. bitfield[3]
 	Commands::bControllerIsInitialised = true;
 }
@@ -215,13 +216,6 @@ void Commands::peek(u64 offset, u64 size)
 	free(out);
 }
 
-void Commands::readMem(u8 *out, u64 offset, u64 size)
-{
-	Result rc = svcReadDebugProcessMemory(out, Commands::debughandle, offset, size);
-	if (R_FAILED(rc) && Variables::debugResultCodes)
-		printf("svcReadDebugProcessMemory: %d\n", rc);
-}
-
 std::string Commands::peekReturn(u64 offset, u64 size)
 {
 	u8 out[size];
@@ -239,6 +233,38 @@ std::string Commands::peekReturn(u64 offset, u64 size)
 	}
 
 	return res;
+}
+
+void Commands::peekMulti(u64* offset, u64* size, u64 count)
+{
+    u64 totalSize = 0;
+    for (u64 i = 0; i < count; i++)
+        totalSize += size[i];
+
+    u8 *out = (u8 *) malloc(sizeof(u8) * totalSize);
+    u64 ofs = 0;
+    attach();
+    for (u64 i = 0; i < count; i++)
+    {
+        readMem(out + ofs, offset[i], size[i]);
+        ofs += size[i];
+    }
+    detach();
+
+    u64 i;
+    for (i = 0; i < totalSize; i++)
+    {
+        printf("%02X", out[i]);
+    }
+    printf("\n");
+    free(out);
+}
+
+void Commands::readMem(u8 *out, u64 offset, u64 size)
+{
+	Result rc = svcReadDebugProcessMemory(out, Commands::debughandle, offset, size);
+	if (R_FAILED(rc) && Variables::debugResultCodes)
+		printf("svcReadDebugProcessMemory: %d\n", rc);
 }
 
 void Commands::click(HidNpadButton btn)
@@ -280,4 +306,176 @@ void Commands::setStickState(int side, int dxVal, int dyVal)
 		controllerState.analog_stick_r.y = dyVal;
 	}
 	hiddbgSetHdlsState(Commands::controllerHandle, &Commands::controllerState);
+}
+
+void Commands::reverseArray(u8* arr, int start, int end)
+{
+    int temp;
+    while (start < end)
+    {
+        temp = arr[start];   
+        arr[start] = arr[end];
+        arr[end] = temp;
+        start++;
+        end--;
+    }   
+} 
+
+u64 Commands::followMainPointer(s64* jumps, size_t count) 
+{
+	u64 offset;
+    u64 size = sizeof offset;
+	u8 *out = (u8 *) malloc(size);
+	MetaData meta = getMetaData(); 
+	
+	attach();
+	Commands::readMem(out, meta.main_nso_base + jumps[0], size);
+	offset = *(u64*)out;
+	size_t i;
+    for (i = 1; i < count; ++i)
+	{
+		Commands::readMem(out, offset + jumps[i], size);
+		offset = *(u64*)out;
+        // this traversal resulted in an error
+        if (offset == 0)
+            break;
+	}
+	detach();
+	free(out);
+	
+    return offset;
+}
+
+void Commands::touch(HidTouchState* state, u64 sequentialCount, u64 holdTime, bool hold, u8* token)
+{
+    initController();
+    state->delta_time = holdTime; // only the first touch needs this for whatever reason
+    for (u32 i = 0; i < sequentialCount; i++)
+    {
+        hiddbgSetTouchScreenAutoPilotState(&state[i], 1);
+        svcSleepThread(holdTime);
+        if (!hold)
+        {
+            hiddbgSetTouchScreenAutoPilotState(NULL, 0);
+            svcSleepThread(pollRate * 1e+6L);
+        }
+
+        if ((*token) == 1)
+            break;
+    }
+
+    if(hold) // send finger release event
+    {
+        hiddbgSetTouchScreenAutoPilotState(NULL, 0);
+        svcSleepThread(pollRate * 1e+6L);
+    }
+    
+    hiddbgUnsetTouchScreenAutoPilotState();
+}
+
+void Commands::key(HiddbgKeyboardAutoPilotState* states, u64 sequentialCount)
+{
+    initController();
+    HiddbgKeyboardAutoPilotState tempState = {0};
+    u32 i;
+    for (i = 0; i < sequentialCount; i++)
+    {
+        memcpy(&tempState.keys, states[i].keys, sizeof(u64) * 4);
+        tempState.modifiers = states[i].modifiers;
+        hiddbgSetKeyboardAutoPilotState(&tempState);
+        svcSleepThread(keyPressSleepTime * 1e+6L);
+
+        if (i != (sequentialCount-1))
+        {
+            if (memcmp(states[i].keys, states[i+1].keys, sizeof(u64) * 4) == 0 && states[i].modifiers == states[i+1].modifiers)
+            {
+                hiddbgSetKeyboardAutoPilotState(&dummyKeyboardState);
+                svcSleepThread(pollRate * 1e+6L);
+            }
+        }
+        else
+        {
+            hiddbgSetKeyboardAutoPilotState(&dummyKeyboardState);
+            svcSleepThread(pollRate * 1e+6L);
+        }
+    }
+
+    hiddbgUnsetKeyboardAutoPilotState();
+}
+
+void Commands::clickSequence(char* seq, u8* token)
+{
+    const char delim = ','; // used for chars and sticks
+    const char startWait = 'W';
+    const char startPress = '+';
+    const char startRelease = '-';
+    const char startLStick = '%';
+    const char startRStick = '&';
+    char* command = strtok(seq, &delim);
+    HidNpadButton currKey = HidNpadButton_A;
+    u64 currentWait = 0;
+
+    initController();
+    while (command != NULL)
+    {
+        if ((*token) == 1)
+            break;
+
+        if (!strncmp(command, &startLStick, 1))
+        {
+            // l stick
+            s64 x = Util::parseStringToSignedLong(&command[1]);
+            if(x > JOYSTICK_MAX) x = JOYSTICK_MAX; 
+            if(x < JOYSTICK_MIN) x = JOYSTICK_MIN; 
+            s64 y = 0;
+            command = strtok(NULL, &delim);
+            if (command != NULL)
+                y = Util::parseStringToSignedLong(command);
+            if(y > JOYSTICK_MAX) y = JOYSTICK_MAX;
+            if(y < JOYSTICK_MIN) y = JOYSTICK_MIN;
+            setStickState(JOYSTICK_LEFT, (s32)x, (s32)y);
+        }
+        else if (!strncmp(command, &startRStick, 1))
+        {
+            // r stick
+            s64 x = Util::parseStringToSignedLong(&command[1]);
+            if(x > JOYSTICK_MAX) x = JOYSTICK_MAX; 
+            if(x < JOYSTICK_MIN) x = JOYSTICK_MIN; 
+            s64 y = 0;
+            command = strtok(NULL, &delim);
+            if (command != NULL)
+                y = Util::parseStringToSignedLong(command);
+            if(y > JOYSTICK_MAX) y = JOYSTICK_MAX;
+            if(y < JOYSTICK_MIN) y = JOYSTICK_MIN;
+            setStickState(JOYSTICK_RIGHT, (s32)x, (s32)y);
+        }
+        else if (!strncmp(command, &startPress, 1))
+        {
+            // press
+            currKey = Util::parseStringToButton(&command[1]);
+            press(currKey);
+        }  
+        else if (!strncmp(command, &startRelease, 1))
+        {
+            // release
+            currKey = Util::parseStringToButton(&command[1]);
+            press(currKey);
+        }   
+        else if (!strncmp(command, &startWait, 1))
+        {
+            // wait
+            currentWait = Util::parseStringToInt(&command[1]);
+            svcSleepThread(currentWait * 1e+6l);
+        }
+        else
+        {
+            // click
+            currKey = Util::parseStringToButton(command);
+            press(currKey);
+            svcSleepThread(buttonClickSleepTime * 1e+6L);
+            release(currKey);
+        }
+
+        command = strtok(NULL, &delim);
+    }
 }
