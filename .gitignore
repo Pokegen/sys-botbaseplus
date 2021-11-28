@@ -40,3 +40,4 @@ build/
 out/
 
 .history
+.DS_Store
