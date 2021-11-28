@@ -10,11 +10,11 @@
 
 using namespace BotBasePlus;
 
-Freeze::FreezeBlock* freezes;
+Freeze::FreezeBlock *Freeze::freezes;
 
 void Freeze::initFreezes()
 {
-	Freeze::freezes = (FreezeBlock*)calloc(FREEZE_DIC_LENGTH, sizeof(FreezeBlock));
+	Freeze::freezes = (FreezeBlock *)calloc(FREEZE_DIC_LENGTH, sizeof(FreezeBlock));
 }
 
 void Freeze::freeFreezes()
@@ -29,7 +29,7 @@ int Freeze::findAddrSlot(u64 addr)
 		if (Freeze::freezes[i].address == addr)
 			return i;
 	}
-	
+
 	return -1;
 }
 
@@ -38,7 +38,7 @@ int Freeze::findNextEmptySlot()
 	return findAddrSlot(0);
 }
 
-int Freeze::addToFreezeMap(u64 addr, u8* v_data, u64 v_size, u64 tid)
+int Freeze::addToFreezeMap(u64 addr, u8 *v_data, u64 v_size, u64 tid)
 {
 	// update slot if already exists
 	int slot = findAddrSlot(addr);
@@ -46,16 +46,16 @@ int Freeze::addToFreezeMap(u64 addr, u8* v_data, u64 v_size, u64 tid)
 		slot = findNextEmptySlot();
 	else
 		removeFromFreezeMap(addr);
-	
+
 	if (slot == -1)
 		return 0;
-	
+
 	Freeze::freezes[slot].address = addr;
 	Freeze::freezes[slot].vData = v_data;
 	Freeze::freezes[slot].size = v_size;
 	Freeze::freezes[slot].state = 1;
 	Freeze::freezes[slot].titleId = tid;
-	
+
 	return slot;
 }
 
