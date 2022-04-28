@@ -85,6 +85,12 @@ extern "C"
 				setsysExit();
 			}
 		}
+		rc = fsInitialize();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
+		rc = fsdevMountSdmc();
+		if (R_FAILED(rc))
+			fatalThrow(rc);
 		rc = pmdmntInitialize();
 		if (R_FAILED(rc))
 		{
@@ -114,6 +120,8 @@ extern "C"
 
 	void __appExit(void)
 	{
+		fsdevUnmountAll();
+		fsExit();
 		smExit();
 		audoutExit();
 		socketExit();
