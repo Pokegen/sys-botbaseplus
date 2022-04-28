@@ -85,15 +85,6 @@ extern "C"
 				setsysExit();
 			}
 		}
-		rc = fsInitialize();
-		if (R_FAILED(rc))
-			fatalThrow(rc);
-		rc = fsdevMountSdmc();
-		if (R_FAILED(rc))
-			fatalThrow(rc);
-		rc = timeInitialize();
-		if (R_FAILED(rc))
-			fatalThrow(rc);
 		rc = pmdmntInitialize();
 		if (R_FAILED(rc))
 		{
@@ -119,21 +110,14 @@ extern "C"
 		rc = viInitialize(ViServiceType_Default);
 		if (R_FAILED(rc))
 			fatalThrow(rc);
-		rc = lblInitialize();
-		if (R_FAILED(rc))
-			fatalThrow(rc);
 	}
 
 	void __appExit(void)
 	{
-		fsdevUnmountAll();
-		fsExit();
 		smExit();
 		audoutExit();
-		timeExit();
 		socketExit();
 		viExit();
-		lblExit();
 	}
 }
 
@@ -171,7 +155,7 @@ int argmain(int argc, char **argv)
 	if (argc == 0)
 		return 0;
 
-	//peek <address in hex or dec> <amount of bytes in hex or dec>
+	// peek <address in hex or dec> <amount of bytes in hex or dec>
 	if (!strcmp(argv[0], "peek"))
 	{
 		if (argc != 3)
@@ -264,7 +248,7 @@ int argmain(int argc, char **argv)
 		Commands::peekMulti(offsets, sizes, itemCount);
 	}
 
-	//poke <address in hex or dec> <amount of bytes in hex or dec> <data in hex or dec>
+	// poke <address in hex or dec> <amount of bytes in hex or dec> <data in hex or dec>
 	if (!strcmp(argv[0], "poke"))
 	{
 		if (argc != 3)
@@ -305,7 +289,7 @@ int argmain(int argc, char **argv)
 		free(data);
 	}
 
-	//click <buttontype>
+	// click <buttontype>
 	if (!strcmp(argv[0], "click"))
 	{
 		if (argc != 2)
@@ -314,7 +298,7 @@ int argmain(int argc, char **argv)
 		Commands::click(key);
 	}
 
-	//hold <buttontype>
+	// hold <buttontype>
 	if (!strcmp(argv[0], "press"))
 	{
 		if (argc != 2)
@@ -323,7 +307,7 @@ int argmain(int argc, char **argv)
 		Commands::press(key);
 	}
 
-	//release <buttontype>
+	// release <buttontype>
 	if (!strcmp(argv[0], "release"))
 	{
 		if (argc != 2)
@@ -332,7 +316,7 @@ int argmain(int argc, char **argv)
 		Commands::release(key);
 	}
 
-	//setStick <left or right stick> <x value> <y value>
+	// setStick <left or right stick> <x value> <y value>
 	if (!strcmp(argv[0], "setStick"))
 	{
 		if (argc != 4)
@@ -354,7 +338,7 @@ int argmain(int argc, char **argv)
 
 		int dxVal = strtol(argv[2], NULL, 0);
 		if (dxVal > JOYSTICK_MAX)
-			dxVal = JOYSTICK_MAX; //0x7FFF
+			dxVal = JOYSTICK_MAX; // 0x7FFF
 		if (dxVal < JOYSTICK_MIN)
 			dxVal = JOYSTICK_MIN; //-0x8000
 		int dyVal = strtol(argv[3], NULL, 0);
@@ -366,13 +350,13 @@ int argmain(int argc, char **argv)
 		Commands::setStickState(side, dxVal, dyVal);
 	}
 
-	//detachController
+	// detachController
 	if (!strcmp(argv[0], "detachController"))
 	{
 		Commands::detachController();
 	}
 
-	//configure <mainLoopSleepTime or buttonClickSleepTime> <time in ms>
+	// configure <mainLoopSleepTime or buttonClickSleepTime> <time in ms>
 	if (!strcmp(argv[0], "configure"))
 	{
 		if (argc != 3)
@@ -442,7 +426,7 @@ int argmain(int argc, char **argv)
 
 	if (!strcmp(argv[0], "getSystemLanguage"))
 	{
-		//thanks zaksa
+		// thanks zaksa
 		setInitialize();
 		u64 languageCode = 0;
 		SetLanguage language = SetLanguage_ENUS;
@@ -471,7 +455,7 @@ int argmain(int argc, char **argv)
 
 	if (!strcmp(argv[0], "pixelPeek"))
 	{
-		//errors with 0x668CE, unless debugunit flag is patched
+		// errors with 0x668CE, unless debugunit flag is patched
 		u64 bSize = 0x7D000;
 		char *buf = (char *)malloc(bSize);
 		u64 outSize = 0;
@@ -676,7 +660,7 @@ int argmain(int argc, char **argv)
 	if (!strcmp(argv[0], "freezeUnpause"))
 		freeze_thr_state = Freeze::Active;
 
-	//touch followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is sequential taps, not different fingers. Functions in its own thread, but will not allow the call again while running. tapcount * pollRate * 2
+	// touch followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is sequential taps, not different fingers. Functions in its own thread, but will not allow the call again while running. tapcount * pollRate * 2
 	if (!strcmp(argv[0], "touch"))
 	{
 		if (argc < 3 || argc % 2 == 0)
@@ -695,7 +679,7 @@ int argmain(int argc, char **argv)
 		makeTouch(state, count, Commands::pollRate * 1e+6L, false);
 	}
 
-	//touchHold <x in the range 0-1280> <y in the range 0-720> <time in milliseconds (must be at least 15ms)>. Functions in its own thread, but will not allow the call again while running. pollRate + holdtime
+	// touchHold <x in the range 0-1280> <y in the range 0-720> <time in milliseconds (must be at least 15ms)>. Functions in its own thread, but will not allow the call again while running. pollRate + holdtime
 	if (!strcmp(argv[0], "touchHold"))
 	{
 		if (argc != 4)
@@ -709,7 +693,7 @@ int argmain(int argc, char **argv)
 		makeTouch(state, 1, time * 1e+6L, false);
 	}
 
-	//touchDraw followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is vectors of where finger moves to, then removes the finger. Functions in its own thread, but will not allow the call again while running. (vectorcount * pollRate * 2) + pollRate
+	// touchDraw followed by arrayof: <x in the range 0-1280> <y in the range 0-720>. Array is vectors of where finger moves to, then removes the finger. Functions in its own thread, but will not allow the call again while running. (vectorcount * pollRate * 2) + pollRate
 	if (!strcmp(argv[0], "touchDraw"))
 	{
 		if (argc < 3 || argc % 2 == 0)
@@ -731,8 +715,8 @@ int argmain(int argc, char **argv)
 	if (!strcmp(argv[0], "touchCancel"))
 		touchToken = 1;
 
-	//key followed by arrayof: <HidKeyboardKey> to be pressed in sequential order
-	//thank you Red (hp3721) for this functionality
+	// key followed by arrayof: <HidKeyboardKey> to be pressed in sequential order
+	// thank you Red (hp3721) for this functionality
 	if (!strcmp(argv[0], "key"))
 	{
 		if (argc < 2)
@@ -747,13 +731,13 @@ int argmain(int argc, char **argv)
 			if (key < 4 || key > 231)
 				continue;
 			keystates[i].keys[key / 64] = 1UL << key;
-			keystates[i].modifiers = 1024UL; //numlock
+			keystates[i].modifiers = 1024UL; // numlock
 		}
 
 		makeKeys(keystates, count);
 	}
 
-	//keyMod followed by arrayof: <HidKeyboardKey> <HidKeyboardModifier>(without the bitfield shift) to be pressed in sequential order
+	// keyMod followed by arrayof: <HidKeyboardKey> <HidKeyboardModifier>(without the bitfield shift) to be pressed in sequential order
 	if (!strcmp(argv[0], "keyMod"))
 	{
 		if (argc < 3 || argc % 2 == 0)
@@ -774,7 +758,7 @@ int argmain(int argc, char **argv)
 		makeKeys(keystates, count);
 	}
 
-	//keyMulti followed by arrayof: <HidKeyboardKey> to be pressed at the same time.
+	// keyMulti followed by arrayof: <HidKeyboardKey> to be pressed at the same time.
 	if (!strcmp(argv[0], "keyMulti"))
 	{
 		if (argc < 2)
@@ -794,7 +778,7 @@ int argmain(int argc, char **argv)
 		makeKeys(keystate, 1);
 	}
 
-	//turns off the screen (display)
+	// turns off the screen (display)
 	if (!strcmp(argv[0], "screenOff"))
 	{
 		ViDisplay temp_display;
@@ -806,11 +790,18 @@ int argmain(int argc, char **argv)
 			rc = viSetDisplayPowerState(&temp_display, ViPowerState_NotScanning); // not scanning keeps the screen on but does not push new pixels to the display. Battery save is non-negligible and should be used where possible
 			svcSleepThread(1e+6l);
 			viCloseDisplay(&temp_display);
+
+			rc = lblInitialize();
+			if (R_FAILED(rc))
+				fatalThrow(rc);
+			lblSwitchBacklightOff(1ul);
+			lblExit();
+
 			lblSwitchBacklightOff(1ul);
 		}
 	}
 
-	//turns on the screen (display)
+	// turns on the screen (display)
 	if (!strcmp(argv[0], "screenOn"))
 	{
 		ViDisplay temp_display;
@@ -822,7 +813,12 @@ int argmain(int argc, char **argv)
 			rc = viSetDisplayPowerState(&temp_display, ViPowerState_On);
 			svcSleepThread(1e+6l);
 			viCloseDisplay(&temp_display);
+
+			rc = lblInitialize();
+			if (R_FAILED(rc))
+				fatalThrow(rc);
 			lblSwitchBacklightOn(1ul);
+			lblExit();
 		}
 	}
 
@@ -887,8 +883,7 @@ int main()
 							   while (true)
 							   {
 								   svr->listen("0.0.0.0", 9999);
-							   }
-						   },
+							   } },
 						   svr);
 
 	int newfd;
@@ -1048,7 +1043,7 @@ IDLE:
 		}
 		else if (*(Freeze::FreezeThreadState *)arg == Freeze::Pause)
 		{
-			svcSleepThread(1e+8L); //1s
+			svcSleepThread(1e+8L); // 1s
 			continue;
 		}
 
